@@ -1,14 +1,15 @@
-# Task Sync Client
+# Task Sync Server
 
-A modern React client for the Task Synchronization System. Uses Zustand for state management and persistence, and communicates with the backend via REST and WebSocket APIs.
+A Node.js server for synchronizing tasks between clients. Supports REST API and WebSocket for real-time task exchange. Authentication via JWT. User data is stored in a lowdb database (`db.json`).
 
 ## Features
 
-- Login with any username (JWT-based, no registration)
-- Add, complete, and manage tasks
-- Real-time updates between all logged-in clients
-- Persistent state (localStorage) and optimistic UI
-- Modular architecture (FSD2): features, entities, widgets, pages
+- REST and WebSocket APIs for task synchronization
+- JWT-based authentication (username only, no registration)
+- Per-user task isolation
+- Last-Write-Wins conflict resolution
+- Real-time push updates to all connected clients
+- Simple file-based persistence (lowdb)
 
 ## Getting Started
 
@@ -18,55 +19,103 @@ A modern React client for the Task Synchronization System. Uses Zustand for stat
 npm install
 ```
 
-### 2. Start the development server
+### 2. Start the server
 
 ```bash
-npm start
+node index.js
 ```
 
-The app will be available at [http://localhost:8080](http://localhost:8080).
+The server will run on `http://localhost:3001` by default.
 
-### 3. Build for production
+### 3. Environment Variables (optional)
+- `PORT` — server port (default: 3001)
+- `JWT_SECRET` — secret for signing JWT (default: 'supersecret')
 
-```bash
-npm run build
-```
+## API Reference
 
-## Project Structure
+### POST `/login`
+- Obtain a JWT token for any username (no registration required).
+- Request body:
+  ```json
+  { "username": "your_username" }
+  ```
+- Response:
+  ```json
+  { "token": "..." }
+  ```
 
-- `src/app/` — App entry point and global styles
-- `src/pages/` — Main and Auth pages
-- `src/features/` — Auth and AddTask features
-- `src/entities/` — Task entity (model, API, UI)
-- `src/widgets/` — TaskList, Board, ListColumn widgets
+### GET `/sync`
+- Get the current user's task list (requires JWT in `Authorization` header).
+- Response:
+  ```json
+  { "tasks": [ ... ] }
+  ```
 
-## API Integration
+### POST `/sync`
+- Send a list of tasks to the server for synchronization (requires JWT).
+- Each task **must** have a unique `taskId` and an `updatedAt` field (ISO8601 string).
+- Request body:
+  ```json
+  { "tasks": [ ... ] }
+  ```
+- The server merges tasks by `taskId` and `updatedAt` (Last-Write-Wins), returns the current user's task list.
+- Response:
+  ```json
+  { "tasks": [ ... ] }
+  ```
 
-- **REST:** `/login`, `/sync`
-- **WebSocket:** Real-time task updates
+## WebSocket API
+- Connect to: `ws://localhost:3001`
+- After connecting, send:
+  ```json
+  { "type": "sync_request", "token": "..." }
+  ```
+- The server responds with:
+  - `{ "type": "sync_response", "tasks": [...] }` — current task list
+  - `{ "type": "task_update", "tasks": [...] }` — task updates on changes
 
-See [docs/Project.md](../docs/Project.md) for full API details.
-
-## Development Notes
-
-- State is managed with Zustand and persisted in localStorage.
-- All user actions are synchronized with the server and other clients.
-- The UI is fully driven by the global store for consistency.
+## Data Model
+- Each user (username) has their own task list stored in `db.json`:
+  ```json
+  {
+    "userTasks": {
+      "username": [
+        {
+          "taskId": 1,
+          "taskName": "string",
+          "isCompleted": false,
+          "dateBox": "today" | "week" | "later",
+          "updatedAt": "2024-06-09T12:00:00Z"
+        }
+      ]
+    }
+  }
+  ```
+- All read/write operations go through lowdb.
+- When a user's tasks change, the server sends updates only to clients with the same username via WebSocket.
+- Conflicts are resolved using the `updatedAt` field (Last-Write-Wins).
 
 ## Testing
 
-- Unit and integration tests are set up with Jest and React Testing Library.
+- Unit and integration tests are provided in the `test/` directory.
 - To run tests:
   ```bash
   npm test
   ```
+- Tests cover:
+  - REST API endpoints
+  - JWT authentication middleware
+  - Utility functions (task merging, date comparison, boolean conversion)
+
+## Production Notes
+
+- Use a unique and strong `JWT_SECRET`.
+- Deploy the server behind HTTPS.
+- For scaling, consider a more robust database (e.g., PostgreSQL).
+- Set up regular backups for `db.json`.
 
 ## Troubleshooting
 
-- Ensure the server is running at `http://localhost:3001`.
-- JWT tokens are stored in localStorage and used for all API requests.
-
-## License
-
-MIT (or your chosen license)
-```
+- Ensure every task sent to the server includes a valid `updatedAt` field.
+- If you migrate old data, add `updatedAt` to all existing tasks.
+- For more details, see the main project [docs/Project.md](../docs/Project.md).

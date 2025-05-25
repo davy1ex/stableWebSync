@@ -1,19 +1,19 @@
-import { useState } from "react"
-import {TaskModel} from "../model/TaskModel"
+import { TaskModel } from "../model/TaskModel"
+import { useTaskStore } from "../model/store"
 
 type TaskComponentProps = {
     task: TaskModel
 }
 
 export const TaskComponent = ({task}: TaskComponentProps) => {
-    const [stateIsCompleted, setStateIsCompleted] = useState(task.isCompleted)
+    const toggleTaskCompleted = useTaskStore((s) => s.toggleTaskCompleted)
     return (
         <div className="taskContainer">
             <div className="taskCheckbox">
                 <input 
                     type="checkbox" 
-                    checked={stateIsCompleted} 
-                    onChange={()=> setStateIsCompleted(!stateIsCompleted)} 
+                    checked={task.isCompleted} 
+                    onChange={() => toggleTaskCompleted(task.taskId)} 
                 />
             </div>
             <div className="taskName">

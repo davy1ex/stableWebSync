@@ -1,6 +1,6 @@
 /**
  * @file: syncApi.ts
- * @description: API для синхронизации задач с сервером (REST + WebSocket)
+ * @description: API for synchronizing tasks with the server (REST + WebSocket)
  * @dependencies: fetch, WebSocket
  * @created: 2024-06-09
  */
@@ -35,7 +35,7 @@ export function connectWebSocket(token: string, onUpdate: (tasks: TaskModel[]) =
     if (ws) ws.close();
     ws = new WebSocket(`ws://localhost:3001`);
     ws.onopen = () => {
-        // Можно отправить sync_request при подключении
+        // You can send sync_request on connection
         ws?.send(JSON.stringify({ type: 'sync_request', token }));
     };
     ws.onmessage = (event) => {

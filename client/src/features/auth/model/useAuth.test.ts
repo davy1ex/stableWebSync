@@ -5,6 +5,13 @@ import { useAuth } from './useAuth'
 const mockFetch = jest.fn()
 global.fetch = mockFetch as any
 
+beforeAll(() => {
+  Object.defineProperty(window, 'location', {
+    value: { reload: jest.fn() },
+    writable: true,
+  });
+});
+
 describe('useAuth', () => {
     beforeEach(() => {
         localStorage.clear()
@@ -34,7 +41,7 @@ describe('useAuth', () => {
             expect(ok).toBe(false)
         })
         expect(result.current.token).toBeNull()
-        expect(result.current.error).toBe('Ошибка авторизации')
+        expect(result.current.error).toBe('Authorization error')
     })
 
     it('logout', async () => {

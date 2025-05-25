@@ -15,7 +15,7 @@ export function useAuth() {
             body: JSON.stringify({ username })
         });
         if (!res.ok) {
-            setError('Ошибка авторизации');
+            setError('Authorization error');
             return false;
         }
         const data = await res.json();
@@ -23,6 +23,7 @@ export function useAuth() {
         setUsername(username);
         localStorage.setItem('token', data.token);
         localStorage.setItem('username', username);
+        window.location.reload();
         return true;
     }
 
@@ -31,6 +32,7 @@ export function useAuth() {
         setUsername(null);
         localStorage.removeItem('token');
         localStorage.removeItem('username');
+        window.location.reload();
     }
 
     return { token, username, login, logout, error };

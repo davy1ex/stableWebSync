@@ -1,122 +1,72 @@
-# Task Sync Server
+# Task Sync Client
 
-## Description
-A server for synchronizing tasks between clients. Supports REST API and WebSocket for real-time task exchange. Authentication via JWT. User data is stored in a lowdb database (`db.json`).
+A modern React client for the Task Synchronization System. Uses Zustand for state management and persistence, and communicates with the backend via REST and WebSocket APIs.
 
-## Usage in Your Project (GitHub)
+## Features
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/your-org/task-sync-server.git
-   cd task-sync-server
-   ```
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-3. **Configure environment variables (optional):**
-   - `PORT` — server port (default: 3001)
-   - `JWT_SECRET` — secret for signing JWT (default: 'supersecret')
-   - Example `.env` file:
-     ```env
-     PORT=3001
-     JWT_SECRET=your_secret
-     ```
-4. **Start the server:**
-   ```bash
-   node index.js
-   ```
-5. **Integrate with your client:**
-   - Use the REST and WebSocket API to synchronize tasks.
-   - Example client — see the `client` folder in this repository or implement your own.
+- Login with any username (JWT-based, no registration)
+- Add, complete, and manage tasks
+- Real-time updates between all logged-in clients
+- Persistent state (localStorage) and optimistic UI
+- Modular architecture (FSD2): features, entities, widgets, pages
+
+## Getting Started
+
+### 1. Install dependencies
+
+```bash
+npm install
+```
+
+### 2. Start the development server
+
+```bash
+npm start
+```
+
+The app will be available at [http://localhost:8080](http://localhost:8080).
+
+### 3. Build for production
+
+```bash
+npm run build
+```
 
 ## Project Structure
-- `index.js` — main server file
-- `db.json` — user and task database (created automatically)
-- `package.json` — dependencies and scripts
-- `README.md` — documentation
 
-## REST API
+- `src/app/` — App entry point and global styles
+- `src/pages/` — Main and Auth pages
+- `src/features/` — Auth and AddTask features
+- `src/entities/` — Task entity (model, API, UI)
+- `src/widgets/` — TaskList, Board, ListColumn widgets
 
-### POST /login
-- Obtain a JWT token for any username (no registration required).
-- Request body:
-  ```json
-  { "username": "your_username" }
-  ```
-- Response:
-  ```json
-  { "token": "..." }
-  ```
+## API Integration
 
-### POST /sync
-- Send a list of tasks to the server for synchronization.
-- Request body:
-  ```json
-  { "tasks": [ ... ] }
-  ```
-- The server merges tasks by `taskId` and `updatedAt` (Last-Write-Wins), returns the current user's task list.
-- Response:
-  ```json
-  { "tasks": [ ... ] }
+- **REST:** `/login`, `/sync`
+- **WebSocket:** Real-time task updates
+
+See [docs/Project.md](../docs/Project.md) for full API details.
+
+## Development Notes
+
+- State is managed with Zustand and persisted in localStorage.
+- All user actions are synchronized with the server and other clients.
+- The UI is fully driven by the global store for consistency.
+
+## Testing
+
+- Unit and integration tests are set up with Jest and React Testing Library.
+- To run tests:
+  ```bash
+  npm test
   ```
 
-### GET /sync
-- Get the current user's task list.
-- Response:
-  ```json
-  { "tasks": [ ... ] }
-  ```
+## Troubleshooting
 
-## WebSocket API
-- Connect to: ws://localhost:3001
-- After connecting, send:
-  ```json
-  { "type": "sync_request", "token": "..." }
-  ```
-- The server responds with:
-  - `{ "type": "sync_response", "tasks": [...] }` — current task list
-  - `{ "type": "task_update", "tasks": [...] }` — task updates on changes
+- Ensure the server is running at `http://localhost:3001`.
+- JWT tokens are stored in localStorage and used for all API requests.
 
-## Synchronization & Data Storage
-- Each user (username) has their own task list stored in `db.json`.
-- All read/write operations go through lowdb.
-- When a user's tasks change, the server sends updates only to clients with the same username via WebSocket.
-- Conflicts are resolved using the `updatedAt` field (Last-Write-Wins).
+## License
 
-## Task Example
-```json
-{
-  "taskId": 1,
-  "taskName": "string",
-  "isCompleted": false,
-  "dateBox": "today" | "week" | "later",
-  "updatedAt": "2024-06-09T12:00:00Z"
-}
+MIT (or your chosen license)
 ```
-
-## Example Requests
-
-### Get a token
-```bash
-curl -X POST http://localhost:3001/login -H 'Content-Type: application/json' -d '{"username":"user1"}'
-```
-
-### Get tasks
-```bash
-curl http://localhost:3001/sync -H 'Authorization: Bearer <token>'
-```
-
-### Synchronize tasks
-```bash
-curl -X POST http://localhost:3001/sync -H 'Authorization: Bearer <token>' -H 'Content-Type: application/json' -d '{"tasks":[]}'
-```
-
-## Production Recommendations
-- Use a unique and strong `JWT_SECRET`.
-- Deploy the server behind HTTPS.
-- For scaling, consider a more robust database (e.g., PostgreSQL).
-- Set up regular backups for `db.json`.
-
-## Contributing
-PRs and suggestions are welcome! Open issues or create pull requests. 

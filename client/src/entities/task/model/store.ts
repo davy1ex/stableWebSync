@@ -21,14 +21,14 @@ export const useTaskStore = create<TaskStore>()(
         (set, get) => ({
             tasks: [],
             addTask: (task) => {
-                set((state) => ({ tasks: [...state.tasks, task] }))
+                set((state) => ({ tasks: [...state.tasks, { ...task, updatedAt: new Date().toISOString() }] }))
                 get().syncWithServer()
             },
             toggleTaskCompleted: (taskId) => {
                 set((state) => ({
                     tasks: state.tasks.map((task) => (
                         task.taskId == taskId 
-                            ? {...task, isCompleted: !task.isCompleted}
+                            ? {...task, isCompleted: !task.isCompleted, updatedAt: new Date().toISOString()}
                             :  task
                     ))
                 }))

@@ -16,4 +16,5 @@ module.exports = {
   },
 
   transformIgnorePatterns: ['node_modules/(?!(some-module-to-transform)/)'],
+  setupFilesAfterEnv: ['<rootDir>/setupTests.ts'],
 };

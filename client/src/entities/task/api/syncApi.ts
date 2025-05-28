@@ -10,7 +10,7 @@ import { TaskModel } from "../model/TaskModel";
 const API_URL = "http://localhost:3001";
 const WS_URL = `ws://localhost:3001`;
 let ws: WebSocket | null = null;
-let reconnectTimeout: number | null = null;
+let reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
 const RECONNECT_DELAY = 2000; // 2 seconds
 
 export class SyncError extends Error {
@@ -30,7 +30,7 @@ export class SyncError extends Error {
  */
 export async function fetchTasks(token: string): Promise<TaskModel[]> {
     try {
-        const res = await fetch(`${API_URL}/sync`, {
+        const res = await fetch(`${API_URL}/tasks`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!res.ok) {
@@ -45,6 +45,43 @@ export async function fetchTasks(token: string): Promise<TaskModel[]> {
         if (error instanceof SyncError) throw error;
         // Ensure a SyncError is thrown for unified error handling upstream.
         throw new SyncError(0, `Network error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+}
+
+/**
+ * Updates a specific task on the server using an HTTP PATCH request.
+ * @param taskId The ID of the task to update.
+ * @param taskUpdates An object containing the fields of the task to update.
+ * @param token The JWT token for authentication.
+ * @returns A promise that resolves to the updated task from the server.
+ * @throws {SyncError} If the request fails due to server error, auth error, or network issues.
+ */
+export async function updateTaskOnServer(taskId: number, taskUpdates: Partial<TaskModel>, token: string): Promise<TaskModel> {
+    try {
+        const res = await fetch(`${API_URL}/tasks/${taskId}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(taskUpdates)
+        });
+
+        if (!res.ok) {
+            if (res.status === 403) {
+                throw new SyncError(403, 'Authentication failed - please log in again');
+            }
+            if (res.status === 404) {
+                throw new SyncError(404, 'Task not found on server');
+            }
+            throw new SyncError(res.status, `Server error: ${res.statusText}`);
+        }
+
+        const updatedTask = await res.json();
+        return updatedTask;
+    } catch (error) {
+        if (error instanceof SyncError) throw error;
+        throw new SyncError(0, `Task update failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 }
 

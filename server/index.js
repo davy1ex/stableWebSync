@@ -55,6 +55,7 @@ app.post('/sync', authenticateToken, async (req, res) => {
   for (const clientTask of clientTasks) {
     clientTask.isCompleted = !!clientTask.isCompleted;
     clientTask.updatedAt = clientTask.updatedAt || new Date().toISOString();
+    clientTask.taskName = clientTask.taskName || existingTask.taskName;
     
     const existingTask = existingTasks.get(clientTask.taskId);
     if (!existingTask) {
@@ -89,7 +90,40 @@ app.post('/sync', authenticateToken, async (req, res) => {
   });
 });
 
-app.get('/sync', authenticateToken, async (req, res) => {
+app.patch('/tasks/:taskId', authenticateToken, async (req, res) => {
+  await db.read();
+  const username = req.user.username;
+  const taskId = req.params.taskId; // Note: taskId from client is number, params are string
+  const updates = req.body;
+
+  db.data ||= { userTasks: {} };
+  db.data.userTasks[username] ||= [];
+
+  const taskIndex = db.data.userTasks[username].findIndex(task => task.taskId.toString() === taskId);
+
+  if (taskIndex === -1) {
+    return res.status(404).json({ message: 'Task not found' });
+  }
+
+  // Update the task
+  db.data.userTasks[username][taskIndex] = {
+    ...db.data.userTasks[username][taskIndex],
+    ...updates,
+    updatedAt: new Date().toISOString() // Always set a new timestamp on update
+  };
+
+  // Ensure tasks remain sorted by order if order is not part of the update
+  // or if other tasks' orders are affected. For simplicity, re-sort.
+  db.data.userTasks[username].sort((a, b) => a.order - b.order);
+
+  await db.write();
+  const updatedTask = db.data.userTasks[username][taskIndex];
+  console.log('PATCHED TASK:', JSON.stringify(updatedTask, null, 2));
+  res.json(updatedTask); // Send back the updated task
+  broadcastTasks(username);
+});
+
+app.get('/tasks', authenticateToken, async (req, res) => { // Renamed from /sync
   await db.read();
   const username = req.user.username;
   res.json({ tasks: db.data.userTasks[username] || [] });

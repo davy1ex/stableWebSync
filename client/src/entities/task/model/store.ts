@@ -1,7 +1,7 @@
 import {create} from "zustand"
 import {persist} from "zustand/middleware"
 import { TaskModel } from "./TaskModel"
-import { fetchTasks, syncTasks, connectWebSocket, closeWebSocket, SyncError } from "../api/syncApi"
+import { fetchTasks, syncTasks, connectWebSocket, closeWebSocket, SyncError, updateTaskOnServer } from "../api/syncApi"
 
 type TaskStore = {
     tasks: TaskModel[],
@@ -10,6 +10,7 @@ type TaskStore = {
     authError: boolean,
     addTask: (task: TaskModel) => void,
     toggleTaskCompleted: (taskId: number) => void,
+    updateTask: (newTask: TaskModel) => void,
     updateTasks: (newTasks: TaskModel[]) => void,
     syncWithServer: () => Promise<void>,
     connectSync: () => void,
@@ -43,15 +44,90 @@ export const useTaskStore = create<TaskStore>()(
              * Toggles the completion status of a task and schedules a sync.
              */
             toggleTaskCompleted: (taskId) => {
-                set((state) => ({
-                    tasks: state.tasks.map((task) => (
-                        task.taskId === taskId 
-                            ? {...task, isCompleted: !task.isCompleted, updatedAt: new Date().toISOString()}
-                            : task
-                    )),
-                    pendingSync: true // Mark for sync
-                }))
-                get().syncWithServer() // Attempt to sync
+                let newCompletionStatus: boolean | undefined;
+                let taskToUpdate: Partial<TaskModel> = {};
+
+                set((state) => {
+                    const newTasks = state.tasks.map((task) => {
+                        if (task.taskId === taskId) {
+                            newCompletionStatus = !task.isCompleted;
+                            taskToUpdate = { taskId, isCompleted: newCompletionStatus, updatedAt: new Date().toISOString() };
+                            return { ...task, isCompleted: newCompletionStatus, updatedAt: taskToUpdate.updatedAt };
+                        }
+                        return task;
+                    });
+                    return { tasks: newTasks, pendingSync: false }; // Optimistic update, clear pendingSync for this op initially
+                });
+                
+                const token = getToken();
+                if (!token || newCompletionStatus === undefined) {
+                    console.warn('Toggle task skipped: No token or status change unclear');
+                    // Revert or mark pending if needed, for now, log and return
+                    // If we had set pendingSync true optimistically, we'd revert it here or set it based on error.
+                    return;
+                }
+
+                // Send only the minimal change to the server
+                const changes: Partial<TaskModel> = { isCompleted: newCompletionStatus, updatedAt: (taskToUpdate as TaskModel).updatedAt };
+
+                updateTaskOnServer(taskId, changes, token)
+                    .then(syncedTaskFromServer => {
+                        console.log('Task toggled successfully on server:', syncedTaskFromServer);
+                        // Server response can be used to confirm/update local state further if necessary,
+                        // e.g., if server modifies other fields or confirms timestamp.
+                        // For now, local optimistic update is primary.
+                        // If WebSocket is active, it will also push this update.
+                        set(state => ({
+                            tasks: state.tasks.map(t => t.taskId === syncedTaskFromServer.taskId ? syncedTaskFromServer : t),
+                            pendingSync: false // Sync successful for this task
+                        }))
+                    })
+                    .catch(error => {
+                        console.error('Failed to toggle task on server:', error);
+                        // An error occurred. Mark for full sync to resolve.
+                        set({ pendingSync: true }); 
+                        // Potentially revert optimistic update here if desired, or show error to user
+                    });
+            },
+            updateTask: (taskDataToUpdate) => { // taskDataToUpdate contains taskId and fields to change
+                const optimisticUpdatedAt = new Date().toISOString();
+                let originalTask: TaskModel | undefined;
+
+                set((state) => {
+                    originalTask = state.tasks.find(t => t.taskId === taskDataToUpdate.taskId);
+                    const newTasks = state.tasks.map((t) => 
+                        (t.taskId === taskDataToUpdate.taskId 
+                            ? { ...t, ...taskDataToUpdate, updatedAt: optimisticUpdatedAt } 
+                            : t)
+                   );
+                   return { tasks: newTasks, pendingSync: false }; // Optimistic update
+                });
+                
+                const token = getToken();
+                if (!token || !originalTask) {
+                    console.warn('Update task skipped: No token or original task not found');
+                    return;
+                }
+
+                // Prepare only the fields that are actually being sent for update,
+                // excluding taskId from the body if the endpoint derives it from URL param.
+                // And ensure our optimistic updatedAt is sent so server accepts it.
+                const { taskId, ...changes } = taskDataToUpdate;
+                const payload: Partial<TaskModel> = { ...changes, updatedAt: optimisticUpdatedAt };
+
+                updateTaskOnServer(taskId, payload, token)
+                    .then(syncedTaskFromServer => {
+                        console.log('Task updated successfully on server:', syncedTaskFromServer);
+                        set(state => ({
+                            tasks: state.tasks.map(t => t.taskId === syncedTaskFromServer.taskId ? syncedTaskFromServer : t),
+                            pendingSync: false // Sync successful for this task
+                        }))
+                    })
+                    .catch(error => {
+                        console.error('Failed to update task on server:', error);
+                        set({ pendingSync: true }); // An error occurred. Mark for full sync.
+                        // Optionally revert: set(state => ({ tasks: state.tasks.map(t => t.taskId === taskId ? originalTask : t) }));
+                    });
             },
             /**
              * Updates the entire task list (e.g., after a drag-and-drop reorder) and schedules a sync.

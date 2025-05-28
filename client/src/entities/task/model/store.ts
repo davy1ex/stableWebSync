@@ -7,6 +7,7 @@ type TaskStore = {
     tasks: TaskModel[],
     addTask: (task: TaskModel) => void,
     toggleTaskCompleted: (taskId: number) => void,
+    updateTasks: (newTasks: TaskModel[]) => void,
     syncWithServer: () => Promise<void>,
     connectSync: () => void,
     disconnectSync: () => void
@@ -32,6 +33,10 @@ export const useTaskStore = create<TaskStore>()(
                             :  task
                     ))
                 }))
+                get().syncWithServer()
+            },
+            updateTasks: (newTasks: TaskModel[]) => {
+                set({ tasks: newTasks })
                 get().syncWithServer()
             },
             syncWithServer: async () => {

@@ -1,7 +1,7 @@
 import {create} from "zustand"
 import {persist} from "zustand/middleware"
 import { TaskModel } from "./TaskModel"
-import { fetchTasks, syncTasks, connectWebSocket, closeWebSocket, SyncError, updateTaskOnServer } from "../api/syncApi"
+import { fetchTasks, syncTasks, connectWebSocket, closeWebSocket, SyncError, updateTaskOnServer, deleteTaskOnServer } from "../api/syncApi"
 
 type TaskStore = {
     tasks: TaskModel[],
@@ -10,6 +10,7 @@ type TaskStore = {
     authError: boolean,
     addTask: (task: TaskModel) => void,
     toggleTaskCompleted: (taskId: number) => void,
+    deleteTask: (taskId: number) => void,
     updateTask: (newTask: TaskModel) => void,
     updateTasks: (newTasks: TaskModel[]) => void,
     syncWithServer: () => Promise<void>,
@@ -89,6 +90,37 @@ export const useTaskStore = create<TaskStore>()(
                         // Potentially revert optimistic update here if desired, or show error to user
                     });
             },
+            deleteTask: (taskId) => {
+                const tasks = get().tasks
+                const taskToDelete:Partial<TaskModel> | undefined = tasks.find((t:TaskModel) => t.taskId === taskId)
+                const token = getToken()
+                
+                set((state) => ({
+                    tasks: state.tasks.filter((t:TaskModel) => t.taskId !== taskId),
+                    pendingSync: false
+                }))
+
+                if (!taskToDelete || !token) {
+                    console.warn('Delete task skipped: No task to delete or token');
+                    return;
+                }
+
+                deleteTaskOnServer(taskId, token)
+                    .then(syncedTaskFromServer => {
+                        console.log('Task updated successfully on server:', syncedTaskFromServer);
+                        set(state => ({
+                            tasks: state.tasks.filter(t => t.taskId !== syncedTaskFromServer.taskId),
+                            pendingSync: false // Sync successful for this task
+                        }))
+                        console.log('Tasks after delete:', get().tasks);
+                    })
+                    .catch(error => {
+                        console.error('Failed to update task on server:', error);
+                        set({ pendingSync: true }); // An error occurred. Mark for full sync.
+                        // Optionally revert: set(state => ({ tasks: state.tasks.map(t => t.taskId === taskId ? originalTask : t) }));
+                    });
+
+            },
             updateTask: (taskDataToUpdate) => { // taskDataToUpdate contains taskId and fields to change
                 const optimisticUpdatedAt = new Date().toISOString();
                 let originalTask: TaskModel | undefined;
@@ -152,7 +184,8 @@ export const useTaskStore = create<TaskStore>()(
              */
             syncWithServer: async () => {
                 const token = getToken()
-                const { isOnline, pendingSync, tasks: localTasks } = get()
+                const { isOnline, pendingSync, tasks } = get()
+                console.log('Syncing with server:', tasks);
                 
                 if (!token || !isOnline || !pendingSync) {
                     // Log if sync is skipped and why, helps in debugging.
@@ -163,8 +196,8 @@ export const useTaskStore = create<TaskStore>()(
                 }
 
                 try {
-                    console.log("Attempting to sync tasks via HTTP POST:", localTasks);
-                    const syncedTasks = await syncTasks(localTasks, token)
+                    console.log("Attempting to sync tasks via HTTP POST:", tasks);
+                    const syncedTasks = await syncTasks(tasks, token)
                     set({ tasks: syncedTasks, pendingSync: false, authError: false })
                     console.log("Tasks successfully synced. New state:", syncedTasks);
                 } catch (error) {

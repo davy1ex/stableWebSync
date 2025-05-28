@@ -2,7 +2,11 @@ import { useState, useRef, useEffect } from "react";
 import { useAddTask } from "../model/useAddTask";
 import { useHotkey } from "../model/useHotkeys";
 
-export const TaskInput = () => {
+type TaskInputProps = {
+    columnId: string
+}
+
+export const TaskInput = ({ columnId }: TaskInputProps) => {
     const [taskInputed, setTaskInputed] = useState("");
     const taskInputRef = useRef(taskInputed); 
     const inputRef = useRef<HTMLInputElement>(null);
@@ -18,7 +22,7 @@ export const TaskInput = () => {
         callback: () => {
             const value = taskInputRef.current.trim();
             if (value !== "") {
-                addInputedTask(value);
+                addInputedTask(value, columnId);
                 setTaskInputed(""); // clears input
             }
         }
@@ -31,11 +35,12 @@ export const TaskInput = () => {
                 ref={inputRef}
                 value={taskInputed}
                 onChange={(e) => setTaskInputed(e.target.value)} 
+                placeholder="Add a task"
             /> 
             <button onClick={() => {
                 const value = taskInputed.trim();
                 if (value !== "") {
-                    addInputedTask(value);
+                    addInputedTask(value, columnId);
                     setTaskInputed("");
                 }
             }}>+</button>

@@ -3,7 +3,7 @@ import { useAuth } from './useAuth'
 
 // Mock fetch
 const mockFetch = jest.fn()
-global.fetch = mockFetch as any
+
 
 beforeAll(() => {
   Object.defineProperty(window, 'location', {

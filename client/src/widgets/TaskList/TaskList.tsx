@@ -1,28 +1,31 @@
-import { TaskModel, TaskComponent } from "@/entities/task";
+import { TaskComponent } from "@/entities/task";
 import { useTaskStore } from "@/entities/task";
 import { TaskInput } from "@/features/addTask";
+import { useMemo } from "react";
 
 type TaskListProps = {
     title: string,
+    columnId: string
 }
 
-export const TaskList = (props: TaskListProps) => {
-    const tasks = useTaskStore((state)=>state.tasks)
-
+export const TaskList = ({ title, columnId }: TaskListProps) => {
+    const tasks = useTaskStore(state => state.tasks)
+    const stored = tasks.sort((a, b) => a.order - b.order)
+    
     return (
         <div className={"taskListContainer"}>
             <div className="taskListTitle">
-                {props.title}
+                {title}
             </div>
 
-            <TaskInput />
+            <TaskInput columnId={columnId} />
 
             <div className="taskList">
             {
-                (tasks.length > 0)
+                (stored.length > 0)
                     ? (
-                        tasks.map((task)=>(
-                            <TaskComponent task={task}/>
+                        stored.map((task) => (
+                            <TaskComponent key={task.taskId} task={task}/>
                         ))
                     )
                     : "no tasks"

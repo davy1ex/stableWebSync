@@ -121,6 +121,23 @@ export async function syncTasks(tasks: TaskModel[], token: string): Promise<Task
     }
 }
 
+export async function deleteTaskOnServer(taskId: number, token: string): Promise<TaskModel> {
+    try {
+        const res = await fetch(`${API_URL}/tasks/${taskId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json', 
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        return res.json()
+    }
+    catch (error) {
+        if (error instanceof SyncError) throw error;
+        throw new SyncError(0, `Task delete failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+}
+
 /**
  * Sets up and manages the WebSocket connection.
  * Handles initial data request, incoming updates, and automatic reconnection.

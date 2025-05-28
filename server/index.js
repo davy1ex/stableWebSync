@@ -39,7 +39,7 @@ app.post('/sync', authenticateToken, async (req, res) => {
   db.data ||= { userTasks: {} };
   db.data.userTasks[username] ||= [];
   const { tasks: clientTasks } = req.body;
-  console.log('INCOMING TASKS:', JSON.stringify(clientTasks, null, 2));
+  // console.log('INCOMING TASKS:', JSON.stringify(clientTasks, null, 2));
   
   // Create a map of existing tasks for faster lookup
   const existingTasks = new Map(
@@ -79,7 +79,7 @@ app.post('/sync', authenticateToken, async (req, res) => {
     .sort((a, b) => a.order - b.order);
   
   await db.write();
-  console.log('SAVED TASKS:', JSON.stringify(db.data.userTasks[username], null, 2));
+  // console.log('SAVED TASKS:', JSON.stringify(db.data.userTasks[username], null, 2));
   res.json({ tasks: db.data.userTasks[username] });
   broadcastTasks(username);
   // Explicitly send push to initiator if ws.username is not yet set
@@ -121,6 +121,20 @@ app.patch('/tasks/:taskId', authenticateToken, async (req, res) => {
   console.log('PATCHED TASK:', JSON.stringify(updatedTask, null, 2));
   res.json(updatedTask); // Send back the updated task
   broadcastTasks(username);
+});
+
+app.delete('/tasks/:taskId', authenticateToken, async (req, res) => {
+  await db.read();
+  const username = req.user.username;
+  const taskId = req.params.taskId;
+  const taskToDelete = db.data.userTasks[username].find(task => task.taskId.toString() === taskId);
+  
+  db.data.userTasks[username] = db.data.userTasks[username].filter(task => task.taskId.toString() !== taskId)
+  await db.write();
+  console.log('DELETED TASK:', JSON.stringify(db.data.userTasks[username], null, 2));
+  broadcastTasks(username);
+
+  res.json(taskToDelete);
 });
 
 app.get('/tasks', authenticateToken, async (req, res) => { // Renamed from /sync

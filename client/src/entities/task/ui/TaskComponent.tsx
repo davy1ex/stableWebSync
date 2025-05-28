@@ -11,11 +11,13 @@ type TaskComponentProps = {
 
 export const TaskComponent = ({task}: TaskComponentProps) => {
     const [isToggling, setIsToggling] = useState(false)
-    const toggleTaskCompleted = useTaskStore((s) => s.toggleTaskCompleted)
     const [isEditing, setIsEditing] = useState(false)
     const [taskName, setTaskName] = useState(task.taskName)
+    
+    const toggleTaskCompleted = useTaskStore((s) => s.toggleTaskCompleted)
     const updateTask = useTaskStore((state) => state.updateTask)
-
+    const deleteTask = useTaskStore((state) => state.deleteTask)
+    
     const {
         attributes,
         listeners,
@@ -86,6 +88,12 @@ export const TaskComponent = ({task}: TaskComponentProps) => {
                     </form>
                 </div>
             )}
+
+            <div className="deleteButton" onClick={() => {
+                deleteTask(task.taskId)
+            }}>
+                🗑️
+            </div>
         </div>
     )
 }

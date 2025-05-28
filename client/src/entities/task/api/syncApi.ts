@@ -8,6 +8,7 @@
 import { TaskModel } from "../model/TaskModel";
 
 const API_URL = "http://localhost:3001";
+const WS_URL = `ws://localhost:3001`;
 let ws: WebSocket | null = null;
 let reconnectTimeout: number | null = null;
 const RECONNECT_DELAY = 2000; // 2 seconds
@@ -19,6 +20,14 @@ export class SyncError extends Error {
     }
 }
 
+/**
+ * Fetches all tasks for the authenticated user.
+ * Note: Currently, the initial task load is handled via WebSocket's sync_request/sync_response.
+ * This function serves as a direct HTTP GET endpoint for tasks if needed elsewhere.
+ * @param token The JWT token for authentication.
+ * @returns A promise that resolves to an array of tasks.
+ * @throws {SyncError} If the request fails due to server error, auth error, or network issues.
+ */
 export async function fetchTasks(token: string): Promise<TaskModel[]> {
     try {
         const res = await fetch(`${API_URL}/sync`, {
@@ -34,10 +43,19 @@ export async function fetchTasks(token: string): Promise<TaskModel[]> {
         return data.tasks;
     } catch (error) {
         if (error instanceof SyncError) throw error;
+        // Ensure a SyncError is thrown for unified error handling upstream.
         throw new SyncError(0, `Network error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 }
 
+/**
+ * Synchronizes a list of tasks with the server using an HTTP POST request.
+ * This is typically called when local changes (add, update, delete, reorder) occur.
+ * @param tasks The array of tasks to synchronize.
+ * @param token The JWT token for authentication.
+ * @returns A promise that resolves to the synchronized array of tasks from the server.
+ * @throws {SyncError} If the request fails due to server error, auth error, or network issues.
+ */
 export async function syncTasks(tasks: TaskModel[], token: string): Promise<TaskModel[]> {
     try {
         const res = await fetch(`${API_URL}/sync`, {
@@ -60,14 +78,30 @@ export async function syncTasks(tasks: TaskModel[], token: string): Promise<Task
         return data.tasks;
     } catch (error) {
         if (error instanceof SyncError) throw error;
-        console.error('Sync failed:', error);
-        return tasks; // Return original tasks if sync fails due to network error
+        // Ensure a SyncError is thrown for unified error handling upstream.
+        // Do not return original tasks; let the caller handle the error and retry logic.
+        throw new SyncError(0, `Sync failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 }
 
+/**
+ * Sets up and manages the WebSocket connection.
+ * Handles initial data request, incoming updates, and automatic reconnection.
+ * @param token The JWT token for authentication.
+ * @param onUpdate Callback function invoked with new tasks when updates are received.
+ * @param onAuthError Callback function invoked if a WebSocket operation results in an auth error.
+ */
 function setupWebSocket(token: string, onUpdate: (tasks: TaskModel[]) => void, onAuthError: () => void) {
-    if (ws) ws.close();
-    ws = new WebSocket(`ws://localhost:3001`);
+    if (ws) {
+        // If a WebSocket object exists, explicitly close it before creating a new one.
+        // This ensures old listeners are cleaned up.
+        ws.onopen = null;
+        ws.onmessage = null;
+        ws.onerror = null;
+        ws.onclose = null;
+        ws.close();
+    }
+    ws = new WebSocket(WS_URL);
 
     ws.onopen = () => {
         console.log('WebSocket connected');
@@ -110,10 +144,25 @@ function setupWebSocket(token: string, onUpdate: (tasks: TaskModel[]) => void, o
     return ws;
 }
 
+/**
+ * Connects to the WebSocket server for real-time task synchronization.
+ * This function is a wrapper around setupWebSocket.
+ * @param token The JWT token for authentication.
+ * @param onUpdate Callback function invoked with new tasks.
+ * @param onAuthError Callback function invoked on authentication errors.
+ */
 export function connectWebSocket(token: string, onUpdate: (tasks: TaskModel[]) => void, onAuthError: () => void) {
-    return setupWebSocket(token, onUpdate, onAuthError);
+    // Ensure any existing reconnection timeouts are cleared before setting up a new connection.
+    if (reconnectTimeout) {
+        clearTimeout(reconnectTimeout);
+        reconnectTimeout = null;
+    }
+    setupWebSocket(token, onUpdate, onAuthError);
 }
 
+/**
+ * Closes the WebSocket connection and clears any reconnection timeouts.
+ */
 export function closeWebSocket() {
     if (reconnectTimeout) {
         clearTimeout(reconnectTimeout);

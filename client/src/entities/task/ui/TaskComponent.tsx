@@ -11,6 +11,11 @@ type TaskComponentProps = {
 
 export const TaskComponent = ({task}: TaskComponentProps) => {
     const [isToggling, setIsToggling] = useState(false)
+    const toggleTaskCompleted = useTaskStore((s) => s.toggleTaskCompleted)
+    const [isEditing, setIsEditing] = useState(false)
+    const [taskName, setTaskName] = useState(task.taskName)
+    const updateTask = useTaskStore((state) => state.updateTask)
+
     const {
         attributes,
         listeners,
@@ -20,13 +25,11 @@ export const TaskComponent = ({task}: TaskComponentProps) => {
     } = useSortable({
         id: task.taskId.toString(),
     })
-
+    
     const style = {
         transform: CSS.Transform.toString(transform),
         transition
     }
-
-    const toggleTaskCompleted = useTaskStore((s) => s.toggleTaskCompleted)
 
     const handleToggle = async (e: React.MouseEvent) => {
         // Stop propagation to prevent drag handler from catching the click
@@ -42,6 +45,12 @@ export const TaskComponent = ({task}: TaskComponentProps) => {
         } finally {
             setIsToggling(false)
         }
+    }
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault()
+        setIsEditing(false)
+        updateTask({...task, taskName: taskName})
     }
 
     return (
@@ -62,9 +71,21 @@ export const TaskComponent = ({task}: TaskComponentProps) => {
             </div>
             
             {/* Task name - part of drag handle */}
-            <div className="taskName" style={{ opacity: isToggling ? 0.5 : 1 }} {...listeners} {...attributes}>
-                {task.taskName}
-            </div>
+            {!isEditing && (
+                <div className="taskName" onClick={()=> {setIsEditing(true)}}>
+                    {task.taskName}
+                </div>
+            )}
+
+            {isEditing && (
+                <div className="taskEdit">
+                    <form onSubmit={handleSubmit}>
+                        <input type="text" value={taskName} onChange={(e) => {
+                            setTaskName(e.target.value)
+                        }} />
+                    </form>
+                </div>
+            )}
         </div>
     )
 }

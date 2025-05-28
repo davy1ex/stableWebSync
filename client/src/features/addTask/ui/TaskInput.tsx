@@ -35,6 +35,7 @@ export const TaskInput = ({ columnId }: TaskInputProps) => {
                 ref={inputRef}
                 value={taskInputed}
                 onChange={(e) => setTaskInputed(e.target.value)} 
+                placeholder="Add a task"
             /> 
             <button onClick={() => {
                 const value = taskInputed.trim();

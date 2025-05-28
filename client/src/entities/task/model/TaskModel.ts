@@ -4,5 +4,6 @@ export type TaskModel = {
     isCompleted: boolean,
     // dateBox: "today" | "week" | "later",
     columnId: string,
-    order: number
+    order: number,
+    updatedAt?: string
 }

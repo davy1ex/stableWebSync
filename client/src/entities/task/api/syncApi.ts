@@ -5,10 +5,11 @@
  * @created: 2024-06-09
  */
 
+import { api } from "@/shared/api";
 import { TaskModel } from "../model/TaskModel";
 
-const API_URL = "http://localhost:3001";
-const WS_URL = `ws://localhost:3001`;
+const API_URL = `${process.env.API_URL}`;
+const WS_URL = `${process.env.WS_URL}`;
 let ws: WebSocket | null = null;
 let reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
 const RECONNECT_DELAY = 2000; // 2 seconds
@@ -30,19 +31,17 @@ export class SyncError extends Error {
  */
 export async function fetchTasks(token: string): Promise<TaskModel[]> {
     try {
-        const res = await fetch(`${API_URL}/tasks`, {
+        const res = await api.get(`${API_URL}/tasks`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        if (!res.ok) {
+        if (res.status !== 200) {
             if (res.status === 403) {
                 throw new SyncError(403, 'Authentication failed - please log in again');
             }
             throw new SyncError(res.status, `Server error: ${res.statusText}`);
         }
-        const data = await res.json();
-        return data.tasks;
+        return res.data.tasks;
     } catch (error) {
-        if (error instanceof SyncError) throw error;
         // Ensure a SyncError is thrown for unified error handling upstream.
         throw new SyncError(0, `Network error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }

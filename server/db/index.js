@@ -5,7 +5,7 @@ const dbFile = path.join(__dirname, './db.json');
 let db;
 
 async function initDB() {
-  db = await JSONFilePreset(dbFile, { userTasks: {}, userRewards: {} });
+  db = await JSONFilePreset(dbFile, { userTasks: {}, userRewards: {}, totalPoints: 0 });
   return db;
 }
 

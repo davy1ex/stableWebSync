@@ -12,39 +12,62 @@ router.get('/', authenticateToken, async (req, res) => {
   res.json({ tasks: db.data.userTasks[username] || [] });
 });
 
+// router.patch('/:taskId', authenticateToken, async (req, res) => {
+//     const db = getDB();
+//     await db.read();
+//     const username = req.user.username;
+//     const taskId = req.params.taskId; // Note: taskId from client is number, params are string
+//     const updates = req.body;
+
+//     db.data ||= { userTasks: {} };
+//     db.data.userTasks[username] ||= [];
+
+//     const taskIndex = db.data.userTasks[username].findIndex(task => task.taskId.toString() === taskId);
+
+//     if (taskIndex === -1) {
+//         return res.status(404).json({ message: 'Task not found' });
+//     }
+
+//     // Update the task
+//     db.data.userTasks[username][taskIndex] = {
+//         ...db.data.userTasks[username][taskIndex],
+//         ...updates,
+//         updatedAt: new Date().toISOString() // Always set a new timestamp on update
+//     };
+
+//     // Ensure tasks remain sorted by order if order is not part of the update
+//     // or if other tasks' orders are affected. For simplicity, re-sort.
+//     db.data.userTasks[username].sort((a, b) => a.order - b.order);
+
+//     db.data.totalPoints[username] = db.data.userTasks[username].reduce((acc, task) => {
+//         if (task.isCompleted) {
+//             return acc + task.taskPoints;
+//         }
+//         return acc;
+//     }, 0)
+//     await db.write();
+//     const updatedTask = db.data.userTasks[username][taskIndex];
+//     console.log('PATCHED TASK:', JSON.stringify(updatedTask, null, 2));
+//     res.json(updatedTask); // Send back the updated task
+//     broadcastTasks(username);
+// });
+  
 router.patch('/:taskId', authenticateToken, async (req, res) => {
+    const db = getDB();
     await db.read();
     const username = req.user.username;
-    const taskId = req.params.taskId; // Note: taskId from client is number, params are string
-    const updates = req.body;
-
-    db.data ||= { userTasks: {} };
-    db.data.userTasks[username] ||= [];
-
+    const taskId = req.params.taskId;
+    const newTask = req.body.task;
     const taskIndex = db.data.userTasks[username].findIndex(task => task.taskId.toString() === taskId);
-
-    if (taskIndex === -1) {
-        return res.status(404).json({ message: 'Task not found' });
-    }
-
-    // Update the task
-    db.data.userTasks[username][taskIndex] = {
-        ...db.data.userTasks[username][taskIndex],
-        ...updates,
-        updatedAt: new Date().toISOString() // Always set a new timestamp on update
-    };
-
-    // Ensure tasks remain sorted by order if order is not part of the update
-    // or if other tasks' orders are affected. For simplicity, re-sort.
-    db.data.userTasks[username].sort((a, b) => a.order - b.order);
+    
+    db.data.userTasks[username][taskIndex] = newTask;
+    const updatedTask = db.data.userTasks[username][taskIndex];
 
     await db.write();
-    const updatedTask = db.data.userTasks[username][taskIndex];
-    console.log('PATCHED TASK:', JSON.stringify(updatedTask, null, 2));
-    res.json(updatedTask); // Send back the updated task
     broadcastTasks(username);
-});
-  
+    res.json(updatedTask);
+})
+
 router.delete('/:taskId', authenticateToken, async (req, res) => {
     await db.read();
     const username = req.user.username;
@@ -58,5 +81,14 @@ router.delete('/:taskId', authenticateToken, async (req, res) => {
 
     res.json(taskToDelete);
 });
+
+router.get('/points', authenticateToken, async (req, res) => {
+    const db = getDB();
+    await db.read();
+    const username = req.user.username;
+    const userPoints = db.data.totalPoints[username]
+    console.log('USER POINTS:', userPoints);
+    res.json({ userPoints });
+})
 
 module.exports = router;

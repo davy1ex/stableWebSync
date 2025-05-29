@@ -21,7 +21,8 @@ export const useAddTask = () => {
             taskName,
             columnId,
             isCompleted: false,
-            order
+            order: tasks.length + 1,
+            taskPoints: 0
         }
         
         addTask(newTask)

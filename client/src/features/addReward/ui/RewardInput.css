@@ -1,0 +1,26 @@
+.rewardInput {
+    justify-content: space-between;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    background-color: #f0f0f0;
+    width: 90%;
+}
+
+.rewardInputName {
+    margin-right: 10px;
+    padding: 5px;
+}
+.rewardInputName:active {
+    outline: none;
+    
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.rewardInput button {
+    padding: 5px 10px;
+}
+.rewardInputPoints {
+    width: 50px;
+}

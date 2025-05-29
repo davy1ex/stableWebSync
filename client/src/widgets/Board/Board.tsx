@@ -1,9 +1,10 @@
 import { DndContext, DragEndEvent } from '@dnd-kit/core';
-import { ListColumn } from "../ListColumn/ListColumn"
-import { TaskList } from "../TaskList/TaskList"
+import { useCallback } from "react";
+import { ListColumn } from "@/widgets/ListColumn/ListColumn"
+import { TaskList } from "@/widgets/TaskList/TaskList"
 import { useTaskStore } from "@/entities/task"
 import { TaskModel } from "@/entities/task"
-import { useCallback } from "react";
+import { RewardColumn } from '../RewardColumn/RewardColumn';
 import "./Board.css"
 
 export const Board = () => {
@@ -54,8 +55,8 @@ export const Board = () => {
         <DndContext onDragEnd={handleDragEnd}>
             <div className="boardContainer">
                 <ListColumn id="inbox1" children={<TaskList title="Inbox" columnId="inbox1"/>} />
-                {/* <ListColumn id="inbox2" children={<TaskList title="Inbox" columnId="inbox2"/>} />
-                <ListColumn id="inbox3" children={<TaskList title="Inbox" columnId="inbox3"/>} /> */}
+                <ListColumn id="inbox1" children={<TaskList title="Backlog" columnId="Backlog"/>} />
+                <ListColumn id="Rewards" children={<RewardColumn />} />
             </div>
         </DndContext>
     )

@@ -10,13 +10,16 @@ type TaskComponentProps = {
 }
 
 export const TaskComponent = ({task}: TaskComponentProps) => {
-    const [isToggling, setIsToggling] = useState(false)
-    const [isEditing, setIsEditing] = useState(false)
-    const [taskName, setTaskName] = useState(task.taskName)
-    
     const toggleTaskCompleted = useTaskStore((s) => s.toggleTaskCompleted)
     const updateTask = useTaskStore((state) => state.updateTask)
     const deleteTask = useTaskStore((state) => state.deleteTask)
+
+    const [isToggling, setIsToggling] = useState(false)
+    const [taskName, setTaskName] = useState(task.taskName)
+    const [taskPoints, setTaskPoints] = useState(task.taskPoints)
+    const [isEditingTaskName, setIsEditingTaskName] = useState(false)
+    const [isEditingTaskPoints, setIsEditingTaskPoints] = useState(false)
+    
     
     const {
         attributes,
@@ -51,8 +54,9 @@ export const TaskComponent = ({task}: TaskComponentProps) => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
-        setIsEditing(false)
-        updateTask({...task, taskName: taskName})
+        setIsEditingTaskName(false)
+        setIsEditingTaskPoints(false)
+        updateTask({...task, taskName: taskName, taskPoints: taskPoints})
     }
 
     return (
@@ -73,17 +77,37 @@ export const TaskComponent = ({task}: TaskComponentProps) => {
             </div>
             
             {/* Task name - part of drag handle */}
-            {!isEditing && (
-                <div className="taskName" onClick={()=> {setIsEditing(true)}}>
+            {!isEditingTaskName && (
+                <div className="taskName" onClick={()=> {setIsEditingTaskName(true)}}>
                     {task.taskName}
                 </div>
             )}
 
-            {isEditing && (
+            {isEditingTaskName && (
                 <div className="taskEdit">
                     <form onSubmit={handleSubmit}>
                         <input type="text" value={taskName} onChange={(e) => {
                             setTaskName(e.target.value)
+                        }} />
+                    </form>
+                </div>
+            )}
+
+            {!isEditingTaskPoints && (
+                <div className="taskPoints" onClick={()=> {setIsEditingTaskPoints(true)}}>
+                    🪙{taskPoints}
+                </div>
+            )}
+
+            {isEditingTaskPoints && (
+                <div className="taskPoints" onClick={()=> {setIsEditingTaskPoints(true)}}>
+                    <form onSubmit={handleSubmit}>
+                        <input type="number" value={taskPoints} onChange={(e) => {
+                            if (Number(e.target.value) > 0) {
+                                setTaskPoints(Number(e.target.value))
+                            } else {
+                                setTaskPoints(0)
+                            }
                         }} />
                     </form>
                 </div>

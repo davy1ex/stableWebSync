@@ -1,10 +1,12 @@
 import {create} from "zustand"
 import {persist} from "zustand/middleware"
 import { TaskModel } from "./TaskModel"
-import { fetchTasks, syncTasks, connectWebSocket, closeWebSocket, SyncError, updateTaskOnServer, deleteTaskOnServer } from "../api/syncApi"
+import { syncTasks, connectWebSocket, closeWebSocket, SyncError, updateTaskOnServer, deleteTaskOnServer, updateTask } from "../api/syncApi"
 
 type TaskStore = {
     tasks: TaskModel[],
+    taskPoints: number,
+    totalPoints: number,
     isOnline: boolean,
     pendingSync: boolean,
     authError: boolean,
@@ -24,10 +26,15 @@ function getToken() {
     return localStorage.getItem('token') || ''
 }
 
+export const useTotalPoints = () =>
+    useTaskStore(state => state.tasks.reduce((acc, t) => t.isCompleted ? acc + t.taskPoints : acc, 0));
+
 export const useTaskStore = create<TaskStore>()(
     persist(
         (set, get) => ({
             tasks: [],
+            taskPoints: 0,
+            totalPoints: 0,
             isOnline: navigator.onLine,
             pendingSync: false,
             authError: false,
@@ -49,6 +56,12 @@ export const useTaskStore = create<TaskStore>()(
                 let taskToUpdate: Partial<TaskModel> = {};
 
                 set((state) => {
+                    const totalPoints = state.tasks.reduce((acc, task) => {
+                        if (task.isCompleted) {
+                            return acc + task.taskPoints;
+                        }
+                        return acc;
+                    }, 0)
                     const newTasks = state.tasks.map((task) => {
                         if (task.taskId === taskId) {
                             newCompletionStatus = !task.isCompleted;
@@ -57,7 +70,7 @@ export const useTaskStore = create<TaskStore>()(
                         }
                         return task;
                     });
-                    return { tasks: newTasks, pendingSync: false }; // Optimistic update, clear pendingSync for this op initially
+                    return { totalPoints: totalPoints, tasks: newTasks, pendingSync: false }; // Optimistic update, clear pendingSync for this op initially
                 });
                 
                 const token = getToken();
@@ -122,44 +135,58 @@ export const useTaskStore = create<TaskStore>()(
 
             },
             updateTask: (taskDataToUpdate) => { // taskDataToUpdate contains taskId and fields to change
-                const optimisticUpdatedAt = new Date().toISOString();
-                let originalTask: TaskModel | undefined;
-
-                set((state) => {
-                    originalTask = state.tasks.find(t => t.taskId === taskDataToUpdate.taskId);
-                    const newTasks = state.tasks.map((t) => 
-                        (t.taskId === taskDataToUpdate.taskId 
-                            ? { ...t, ...taskDataToUpdate, updatedAt: optimisticUpdatedAt } 
-                            : t)
-                   );
-                   return { tasks: newTasks, pendingSync: false }; // Optimistic update
-                });
-                
-                const token = getToken();
-                if (!token || !originalTask) {
-                    console.warn('Update task skipped: No token or original task not found');
-                    return;
-                }
-
-                // Prepare only the fields that are actually being sent for update,
-                // excluding taskId from the body if the endpoint derives it from URL param.
-                // And ensure our optimistic updatedAt is sent so server accepts it.
-                const { taskId, ...changes } = taskDataToUpdate;
-                const payload: Partial<TaskModel> = { ...changes, updatedAt: optimisticUpdatedAt };
-
-                updateTaskOnServer(taskId, payload, token)
+                set((state) => ({
+                    tasks: state.tasks.map(t => t.taskId === taskDataToUpdate.taskId ? taskDataToUpdate : t),
+                    pendingSync: false
+                }))
+                updateTask(taskDataToUpdate.taskId, taskDataToUpdate, getToken())
                     .then(syncedTaskFromServer => {
                         console.log('Task updated successfully on server:', syncedTaskFromServer);
                         set(state => ({
                             tasks: state.tasks.map(t => t.taskId === syncedTaskFromServer.taskId ? syncedTaskFromServer : t),
-                            pendingSync: false // Sync successful for this task
+                            pendingSync: true // Sync successful for this task
                         }))
                     })
                     .catch(error => {
-                        console.error('Failed to update task on server:', error);
-                        set({ pendingSync: true }); // An error occurred. Mark for full sync.
-                        // Optionally revert: set(state => ({ tasks: state.tasks.map(t => t.taskId === taskId ? originalTask : t) }));
-                    });
+                    })
+                // const optimisticUpdatedAt = new Date().toISOString();
+                // let originalTask: TaskModel | undefined;
+
+                // set((state) => {
+                //     originalTask = state.tasks.find(t => t.taskId === taskDataToUpdate.taskId);
+                //     const newTasks = state.tasks.map((t) => 
+                //         (t.taskId === taskDataToUpdate.taskId 
+                //             ? { ...t, ...taskDataToUpdate, updatedAt: optimisticUpdatedAt } 
+                //             : t)
+                //    );
+                //    return { tasks: newTasks, pendingSync: false }; // Optimistic update
+                // });
+                
+                // const token = getToken();
+                // if (!token || !originalTask) {
+                //     console.warn('Update task skipped: No token or original task not found');
+                //     return;
+                // }
+
+                // // Prepare only the fields that are actually being sent for update,
+                // // excluding taskId from the body if the endpoint derives it from URL param.
+                // // And ensure our optimistic updatedAt is sent so server accepts it.
+                // const { taskId, ...changes } = taskDataToUpdate;
+                // const payload: Partial<TaskModel> = { ...changes, updatedAt: optimisticUpdatedAt };
+
+                // updateTaskOnServer(taskId, payload, token)
+                //     .then(syncedTaskFromServer => {
+                //         console.log('Task updated successfully on server:', syncedTaskFromServer);
+                //         set(state => ({
+                //             tasks: state.tasks.map(t => t.taskId === syncedTaskFromServer.taskId ? syncedTaskFromServer : t),
+                //             pendingSync: false // Sync successful for this task
+                //         }))
+                //     })
+                //     .catch(error => {
+                //         console.error('Failed to update task on server:', error);
+                //         set({ pendingSync: true }); // An error occurred. Mark for full sync.
+                //         // Optionally revert: set(state => ({ tasks: state.tasks.map(t => t.taskId === taskId ? originalTask : t) }));
+                //     });
             },
             /**
              * Updates the entire task list (e.g., after a drag-and-drop reorder) and schedules a sync.

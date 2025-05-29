@@ -137,6 +137,29 @@ export async function deleteTaskOnServer(taskId: number, token: string): Promise
     }
 }
 
+export async function fetchUserPoints(token: string): Promise<number|undefined> {
+    try {
+        const res = await api.get(`${API_URL}/tasks/points`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        return res.data.userPoints;
+    } catch (error) {
+        throw new SyncError(0, `Network error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        return undefined;
+    }
+}
+
+export async function updateTask(taskId: number, task: TaskModel, token: string): Promise<TaskModel> {
+    try {
+        const res = await api.patch(`${API_URL}/tasks/${taskId}`, { task }, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        return res.data;
+    } catch (error) {
+        throw new SyncError(0, `Network error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+}
+
 /**
  * Sets up and manages the WebSocket connection.
  * Handles initial data request, incoming updates, and automatic reconnection.

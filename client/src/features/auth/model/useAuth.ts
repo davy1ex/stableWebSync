@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { api } from "@/shared/api"
 
 const API_URL = "http://localhost:3001";
 
@@ -9,16 +10,14 @@ export function useAuth() {
 
     async function login(username: string) {
         setError(null);
-        const res = await fetch(`${API_URL}/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username })
-        });
-        if (!res.ok) {
+        const response = await api.post('/login', { username });
+
+        if (!response.data) {
             setError('Authorization error');
             return false;
         }
-        const data = await res.json();
+
+        const data = response.data;
         setToken(data.token);
         setUsername(username);
         localStorage.setItem('token', data.token);

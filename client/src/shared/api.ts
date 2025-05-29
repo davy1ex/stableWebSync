@@ -11,12 +11,12 @@ api.interceptors.response.use(
         if (error.response) {
             const { status } = error.response;
 
-            // if (status === 401 || status === 403) {
-            //     console.warn('Unauthorized - redirecting to login');
-            //     window.location.href = '/login';
-            //     localStorage.removeItem('token');
-            //     localStorage.removeItem('username');
-            // }
+            if (status === 401 || status === 403) {
+                console.warn('Unauthorized - redirecting to login');
+                window.location.href = '/login';
+                localStorage.removeItem('token');
+                localStorage.removeItem('username');
+            }
         }
 
         return Promise.reject(error);

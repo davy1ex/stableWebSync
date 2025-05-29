@@ -5,5 +5,6 @@ export type TaskModel = {
     // dateBox: "today" | "week" | "later",
     columnId: string,
     order: number,
-    updatedAt?: string
+    updatedAt?: string,
+    taskPoints: number
 }

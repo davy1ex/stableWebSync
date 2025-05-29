@@ -8,6 +8,7 @@ import { useTaskStore } from "@/entities/task";
 import { fetchTasks } from "@/entities/task/api/syncApi";
 import { useRewardStore } from "@/entities/reward";
 import { fetchRewards } from "@/entities/reward/api/syncApi";
+import { useTotalPoints } from "@/entities/task/model/store";
 
 
 export const App = () => {
@@ -15,6 +16,7 @@ export const App = () => {
     const location = useLocation();
     const updateTasks = useTaskStore((state) => state.updateTasks);
     const updateRewards = useRewardStore((state) => state.updateRewards);
+    const totalPoints = useTotalPoints();
         
     if (location.pathname === ROUTES.LOGIN && token) return <Navigate to={ROUTES.BOARD} replace />;
     if (!token) return  <AuthPage />;
@@ -43,6 +45,7 @@ export const App = () => {
                 console.log("rewards in apps", rewards)
                 updateTasks(tasks)
                 updateRewards(rewards)
+                
             } catch (error) {
                 console.error("Error fetching tasks:", error);
             }
@@ -52,7 +55,7 @@ export const App = () => {
 
     return (
         <>
-            <Header username={username} logout={logout} />
+            <Header username={username} logout={logout} totalPoints={totalPoints} />
             <Outlet />
         </>
     )

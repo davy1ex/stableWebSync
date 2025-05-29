@@ -207,7 +207,8 @@ describe('App Integration Tests', () => {
                 taskName: 'New Task',
                 columnId: 'inbox1',
                 isCompleted: false,
-                order: 1
+                order: 1,
+                taskPoints: 0
             }
 
             // Mock the HTTP POST response for when syncTasks is called after adding a task.
@@ -273,7 +274,8 @@ describe('App Integration Tests', () => {
             columnId: 'inbox1',
             isCompleted: false,
             order: 1,
-            updatedAt: new Date().toISOString()
+            updatedAt: new Date().toISOString(),
+            taskPoints: 0
         };
         let completedTask: TaskModel;
 
@@ -363,6 +365,7 @@ describe('App Integration Tests', () => {
             columnId: 'inbox1',
             isCompleted: false, // Start as false
             order: 1,
+            taskPoints: 0,
             // updatedAt will be set by store/sync logic or mock response
         };
 
@@ -519,18 +522,18 @@ describe('App Integration Tests', () => {
 
         it('should update task order after drag', async () => {
             const initialTasks: TaskModel[] = [
-                { taskId: 1, taskName: 'Task 1', columnId: 'inbox1', isCompleted: false, order: 1, updatedAt: new Date().toISOString() },
-                { taskId: 2, taskName: 'Task 2', columnId: 'inbox1', isCompleted: false, order: 2, updatedAt: new Date().toISOString() },
-                { taskId: 3, taskName: 'Task 3', columnId: 'inbox1', isCompleted: false, order: 3, updatedAt: new Date().toISOString() }
+                { taskId: 1, taskName: 'Task 1', columnId: 'inbox1', isCompleted: false, order: 1, updatedAt: new Date().toISOString(), taskPoints: 0 },
+                { taskId: 2, taskName: 'Task 2', columnId: 'inbox1', isCompleted: false, order: 2, updatedAt: new Date().toISOString(), taskPoints: 0 },
+                { taskId: 3, taskName: 'Task 3', columnId: 'inbox1', isCompleted: false, order: 3, updatedAt: new Date().toISOString(), taskPoints: 0 }
             ];
 
             // Simulate dragging Task 1 to be after Task 2.
             // The original order is [Task1 (order 1), Task2 (order 2), Task3 (order 3)]
             // The new order should be [Task2 (order 1), Task1 (order 2), Task3 (order 3)]
             const reorderedTasks: TaskModel[] = [
-                { ...initialTasks[1], order: 1, updatedAt: new Date().toISOString() }, // Task 2 becomes order 1
-                { ...initialTasks[0], order: 2, updatedAt: new Date().toISOString() }, // Task 1 becomes order 2
-                { ...initialTasks[2], order: 3, updatedAt: new Date().toISOString() }  // Task 3 remains order 3 (or adjust if it also shifts)
+                { ...initialTasks[1], order: 1, updatedAt: new Date().toISOString(), taskPoints: 0 }, // Task 2 becomes order 1
+                { ...initialTasks[0], order: 2, updatedAt: new Date().toISOString(), taskPoints: 0 }, // Task 1 becomes order 2
+                { ...initialTasks[2], order: 3, updatedAt: new Date().toISOString(), taskPoints: 0 }  // Task 3 remains order 3 (or adjust if it also shifts)
             ];
             
             // Ensure consistent updatedAt for the items being actively reordered,
@@ -614,9 +617,9 @@ describe('App Integration Tests', () => {
 
     describe('6. Order Persistence', () => {
         const orderedTasksInitial: TaskModel[] = [
-            { taskId: 101, taskName: 'Alpha Task', columnId: 'inbox1', isCompleted: false, order: 1, updatedAt: new Date().toISOString() },
-            { taskId: 102, taskName: 'Bravo Task', columnId: 'inbox1', isCompleted: false, order: 2, updatedAt: new Date().toISOString() },
-            { taskId: 103, taskName: 'Charlie Task', columnId: 'inbox1', isCompleted: false, order: 3, updatedAt: new Date().toISOString() }
+            { taskId: 101, taskName: 'Alpha Task', columnId: 'inbox1', isCompleted: false, order: 1, updatedAt: new Date().toISOString(), taskPoints: 0 },
+            { taskId: 102, taskName: 'Bravo Task', columnId: 'inbox1', isCompleted: false, order: 2, updatedAt: new Date().toISOString(), taskPoints: 0 },
+            { taskId: 103, taskName: 'Charlie Task', columnId: 'inbox1', isCompleted: false, order: 3, updatedAt: new Date().toISOString(), taskPoints: 0 }
         ];
 
         beforeEach(() => {

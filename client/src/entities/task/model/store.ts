@@ -2,7 +2,7 @@ import {create} from "zustand"
 import {persist} from "zustand/middleware"
 import { TaskModel } from "./TaskModel"
 import { syncTasks, connectWebSocket, closeWebSocket, SyncError, updateTaskOnServer, deleteTaskOnServer, updateTask } from "../api/syncApi"
-import { useSettingsStore } from "@/entities/settings/store"
+import { useSettingsStore } from "@/entities/settings/"
 
 type TaskStore = {
     tasks: TaskModel[],

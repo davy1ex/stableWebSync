@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useAddTask } from "../model/useAddTask";
 import { useHotkey } from "../model/useHotkeys";
+import "./TaskInput.css"
 
 type TaskInputProps = {
     columnId: string
@@ -30,21 +31,24 @@ export const TaskInput = ({ columnId, projectId }: TaskInputProps) => {
     });
 
     return (
-        <>
+        <div className="taskInputContainer">
             <input 
                 type="text"
                 ref={inputRef}
                 value={taskInputed}
                 onChange={(e) => setTaskInputed(e.target.value)} 
                 placeholder="Add a task"
+                className="taskInput"
             /> 
-            <button onClick={() => {
+            <button 
+                className="taskInputButton"
+                onClick={() => {
                 const value = taskInputed.trim();
                 if (value !== "") {
                     addInputedTask(value, columnId, projectId);
                     setTaskInputed("");
                 }
             }}>+</button>
-        </>
+        </div>
     )
 }

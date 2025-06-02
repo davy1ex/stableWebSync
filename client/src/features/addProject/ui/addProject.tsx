@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useAddProject } from "../model/useAddProject"
-
+import "./AddProject.css"
 
 export const AddProject = () => {
     const addProject = useAddProject()
@@ -13,11 +13,11 @@ export const AddProject = () => {
     }
     
     return (
-        <div>
+        <>
             <form onSubmit={handleSubmit}>
-                <input type="text" placeholder="Project Name" value={projectName} onChange={(e) => setProjectName(e.target.value)} />
-                <button type="submit">Add Project</button>
+                <input className="addProjectInput" type="text" placeholder="Project Name" value={projectName} onChange={(e) => setProjectName(e.target.value)} />
+                <button className="addProjectButton" type="submit">Add Project</button>
             </form>
-        </div>
+        </>
     )
 }

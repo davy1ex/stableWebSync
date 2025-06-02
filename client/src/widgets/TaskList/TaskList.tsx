@@ -1,7 +1,7 @@
 import { TaskComponent } from "@/entities/task";
 import { useTaskStore } from "@/entities/task";
 import { TaskInput } from "@/features/addTask";
-import { useMemo } from "react";
+import "./TaskList.css"
 
 type TaskListProps = {
     title: string,
@@ -11,7 +11,7 @@ type TaskListProps = {
     showAddTask?: boolean
 }
 
-export const TaskList = ({ title, columnId, projectId, showTitle=true, showAddTask=true }: TaskListProps) => {
+export const TaskList = ({ title, columnId, projectId, showTitle=false, showAddTask=true }: TaskListProps) => {
     const tasks = useTaskStore(state => state.tasks)
     let stored = tasks.sort((a, b) => a.order - b.order)
     

@@ -145,39 +145,46 @@ export const TaskComponent = ({task}: TaskComponentProps) => {
                     </div>
                 )}
 
-                {!isPointsEditing && (
-                    <div className="taskPoints" onClick={()=> {setIsPointsEditing(true)}}>
-                        🪙{taskPoints}
-                    </div>
-                )}
+                
 
-                {isPointsEditing && (
-                    <div className="taskPoints" ref={pointsEditRef} onClick={()=> {setIsPointsEditing(true)}}>
-                        <form onSubmit={handleSubmit}>
-                            <input type="number" value={taskPoints} onChange={(e) => {
-                                if (Number(e.target.value) > 0) {
-                                    setTaskPoints(Number(e.target.value))
-                                } else {
-                                    setTaskPoints(0)
-                                }
-                            }} />
-                        </form>
+                <div className="taskAdditional">
+                    <div className="taskAdditionalLeft">
+                        {!isPointsEditing && (
+                            <div className="taskPoints" onClick={()=> {setIsPointsEditing(true)}}>
+                                🪙{taskPoints}
+                            </div>
+                        )}
+                        {isPointsEditing && (
+                            <div className="taskPoints" ref={pointsEditRef} onClick={()=> {setIsPointsEditing(true)}}>
+                                <form onSubmit={handleSubmit}>
+                                    <input type="number" value={taskPoints} onChange={(e) => {
+                                        if (Number(e.target.value) > 0) {
+                                            setTaskPoints(Number(e.target.value))
+                                        } else {
+                                            setTaskPoints(0)
+                                        }
+                                    }} />
+                                </form>
+                            </div>
+                        )}
+                        {task.projectId && (
+                            <div className="taskProjectBadge" onClick={() => {
+                                updateTask({...task, projectId: null})
+                            }}>
+                                <p>{projectName}</p>
+                            </div>
+                        )}
                     </div>
-                )}
-
-                <div className="deleteButton" onClick={() => {
-                    deleteTask(task.taskId)
-                }}>
-                    🗑️
+                    <div className="taskAdditionalRight">
+                        <div className="deleteTask" onClick={() => {
+                            deleteTask(task.taskId)
+                        }}>
+                            🗑️
+                        </div>
+                   </div>
                 </div>
             </div>
-            {task.projectId && (
-                <div className="taskProjectBadge" onClick={() => {
-                    updateTask({...task, projectId: null})
-                }}>
-                    <p>{projectName}</p>
-                </div>
-            )}
+            
         </div>
         
     )

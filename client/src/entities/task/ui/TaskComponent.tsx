@@ -3,8 +3,9 @@ import { CSS } from '@dnd-kit/utilities'
 import { TaskModel } from "../model/TaskModel"
 import { useTaskStore } from "../model/store"
 import { useEffect, useRef, useState } from 'react'
-import "./TaskComponent.css"
 import { useProjectStore } from '@/entities/project/model/store'
+import { useToastStore } from '@/features/showToast'
+import "./TaskComponent.css"
 
 type TaskComponentProps = {
     task: TaskModel
@@ -14,6 +15,7 @@ export const TaskComponent = ({task}: TaskComponentProps) => {
     const toggleTaskCompleted = useTaskStore((s) => s.toggleTaskCompleted)
     const updateTask = useTaskStore((state) => state.updateTask)
     const deleteTask = useTaskStore((state) => state.deleteTask)
+    const addToast = useToastStore((state) => state.addToast)
 
     const [isToggling, setIsToggling] = useState(false)
     const [taskName, setTaskName] = useState(task.taskName)
@@ -51,6 +53,13 @@ export const TaskComponent = ({task}: TaskComponentProps) => {
         setIsToggling(true)
         try {
             await toggleTaskCompleted(task.taskId)
+            
+            if (!task.isCompleted) {
+                addToast({
+                    message: "Awesome! 🎉",
+                    type: "success",
+                });
+            }
         } catch (error) {
             console.error('Failed to toggle task:', error)
         } finally {

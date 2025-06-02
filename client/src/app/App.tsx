@@ -96,6 +96,7 @@ export const App = () => {
         <>
             <Header username={username} logout={logout} totalPoints={totalPoints} />
             <Outlet />
+            <ToastContainer />
         </>
     )
 };

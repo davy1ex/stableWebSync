@@ -33,3 +33,7 @@
     max-height: 300px;
     overflow-y: scroll;
 }
+.roughPlanItem {
+    display: flex;
+}
+

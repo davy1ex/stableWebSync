@@ -1,10 +1,11 @@
 import { useState } from "react"
-import { useProjectStore } from "@/entities/project"
+import { ProjectModel, useProjectStore } from "@/entities/project"
 import { ModalWindow } from "@/shared/ui/ModalWindow"
 import { ProgressBarByItems } from "@/shared/ui/ProgressBar/ProgressBar"
 import { TaskList } from "@/widgets/TaskList"
 import { useTaskStore } from "@/entities/task"
-import { AddTaskFromModal } from "./AddTaskFromModal"
+import { AddTaskFromModal } from "../ModalAddTask/AddTaskFromModal"
+import { useToastStore } from "@/features/showToast"
 import "./ProjectModal.css"
 
 type ProjectModalProps = {
@@ -18,7 +19,6 @@ const statuses = ["notStarted", "active", "waiting", "completed"]
 export const ProjectModal = ({ projectId, isOpen, onClose }: ProjectModalProps) => {
     const project = useProjectStore(state => state.projects.find(p => p.projectId === projectId))
     const tasks = useTaskStore(state => state.tasks)
-    const updateTask = useTaskStore(state => state.updateTask)
 
     const [inputedRoughPlan, setInputedRoughPlan] = useState("")
     const updateProject = useProjectStore(state => state.updateProject)
@@ -34,6 +34,7 @@ export const ProjectModal = ({ projectId, isOpen, onClose }: ProjectModalProps) 
     const toggleRoughPlanItem = useProjectStore(state => state.toggleRoughPlanItem)
 
     const completeProject = useProjectStore(state => state.completeProject)
+    const addToast = useToastStore((state) => state.addToast)
     
     const handleAddRoughPlan = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -64,11 +65,34 @@ export const ProjectModal = ({ projectId, isOpen, onClose }: ProjectModalProps) 
     const handleUpdateStatus = (status: "notStarted" | "active" | "waiting" | "completed") => {
         if (!project) return
         if (status === "completed") {
+            addToast({
+                message: "U very cool! 😎",
+                type: "success",
+            });
             console.log("completed")
             completeProject(project.projectId)
         }
         updateProject({ ...project, status: status })
     }
+
+    const handleDeleteRoughItem = (todo: string, project: ProjectModel) => {
+    const updatedRoughPlan = project.roughPlan.filter(p => p.todo !== todo);
+    const updatedProject = { ...project, roughPlan: updatedRoughPlan };
+
+    updateProject(updatedProject);
+    addToast({
+        message: `Deleted: ${todo}`,
+        type: "success",
+        undoAction: () => {
+            if (!updatedRoughPlan.some(p => p.todo === todo)) {
+                updateProject({
+                    ...updatedProject,
+                    roughPlan: [...updatedRoughPlan, { todo, isCompleted: false }],
+                });
+            }
+        },
+    });
+};
     
     if (!project) return null
     return (
@@ -156,7 +180,7 @@ export const ProjectModal = ({ projectId, isOpen, onClose }: ProjectModalProps) 
                             <div key={plan.todo} className="roughPlanItem">
                                 <input type="checkbox" checked={plan.isCompleted} onChange={() => toggleRoughPlanItem(project.projectId, {...plan, isCompleted: !plan.isCompleted})}/> {plan.todo}
                                 <div className="deleteButton" onClick={() => {
-                                    updateProject({ ...project, roughPlan: project.roughPlan.filter(p => p.todo !== plan.todo) })
+                                    handleDeleteRoughItem(plan.todo, project)
                                 }}>
                                     🗑️
                                 </div> {/* TODO: add points */}

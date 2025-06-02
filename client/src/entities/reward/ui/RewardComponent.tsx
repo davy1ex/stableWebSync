@@ -63,9 +63,9 @@ export const RewardComponent = ({ reward }: { reward: RewardModel } ) => {
             setRewardName(reward.rewardName)
           }
 
-          if (isPointsEditing) {
+          if (event.key === 'Escape' && isPointsEditing) {
             setIsPointsEditing(false)
-            setRewardPoints(reward.rewardPoints) // откат изменений очков
+            setRewardPoints(reward.rewardPoints)
           }
         }
     

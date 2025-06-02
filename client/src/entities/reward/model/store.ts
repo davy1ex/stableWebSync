@@ -2,7 +2,7 @@ import { create } from "zustand"
 import { RewardModel } from "./RewardModel"
 import { persist } from "zustand/middleware"
 import { addReward, deleteReward, updateReward, updateRewards } from "../api/syncApi"
-
+import { useSettingsStore } from "@/entities/settings/store";
 type RewardStore = {
     rewards: RewardModel[],
     // isOnline: boolean,
@@ -23,6 +23,8 @@ function getToken() {
     return localStorage.getItem('token') || ''
 }
 
+const withoutServerSync = useSettingsStore.getState().withoutServerSync;
+
 export const useRewardStore = create<RewardStore>()(
     persist(
         (set, get) => ({
@@ -33,26 +35,33 @@ export const useRewardStore = create<RewardStore>()(
                     rewards: [...state.rewards, reward],
                     pendingSync: true
                 }))
-                addReward(reward, getToken()) // TODO make solution - how sync on change like in taskStore or like here?
+                if (!withoutServerSync) {
+                    addReward(reward, getToken()) // TODO make solution - how sync on change like in taskStore or like here?
+                }
             },
             deleteReward: async (rewardId: number) => {
                 set((state) => ({
                     rewards: state.rewards.filter(reward => reward.rewardId !== rewardId),
                     pendingSync: true
                 }))
-                const deletedReward = await deleteReward(rewardId, getToken())
-                console.log("deletedReward", deletedReward)
-                set((state) => ({
-                    rewards: state.rewards.filter(reward => reward.rewardId !== deletedReward.rewardId),
-                    pendingSync: false
-                }))
+                if (!withoutServerSync) {
+                    const deletedReward = await deleteReward(rewardId, getToken())
+                    console.log("deletedReward", deletedReward)
+                    set((state) => ({
+                        rewards: state.rewards.filter(reward => reward.rewardId !== deletedReward.rewardId),
+                        pendingSync: false
+                    }))
+                }
             },
             updateReward: (reward: RewardModel) => {
+                console.log("updateReward", reward)
                 set((state) => ({
                     rewards: state.rewards.map(r => r.rewardId === reward.rewardId ? reward : r),
                     pendingSync: true
                 }))
-                updateReward(reward, getToken())
+                if (!withoutServerSync) {
+                    updateReward(reward, getToken())
+                }
             },
             updateRewards: (newRewards: RewardModel[]) => {
                 console.log("getted rewards from server on sync:", newRewards)
@@ -65,7 +74,9 @@ export const useRewardStore = create<RewardStore>()(
                     rewards: rewardsWithTimestamps,
                     pendingSync: false // Mark for sync
                 })
-                updateRewards(rewardsWithTimestamps, getToken())
+                if (!withoutServerSync) {
+                    updateRewards(rewardsWithTimestamps, getToken())
+                }
             },
 
         }),

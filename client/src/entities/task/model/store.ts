@@ -2,6 +2,7 @@ import {create} from "zustand"
 import {persist} from "zustand/middleware"
 import { TaskModel } from "./TaskModel"
 import { syncTasks, connectWebSocket, closeWebSocket, SyncError, updateTaskOnServer, deleteTaskOnServer, updateTask } from "../api/syncApi"
+import { useSettingsStore } from "@/entities/settings/store"
 
 type TaskStore = {
     tasks: TaskModel[],
@@ -26,6 +27,8 @@ function getToken() {
     return localStorage.getItem('token') || ''
 }
 
+const withoutServerSync = useSettingsStore.getState().withoutServerSync;
+
 export const useTotalPoints = () =>
     useTaskStore(state => state.tasks.reduce((acc, t) => t.isCompleted ? acc + t.taskPoints : acc, 0));
 
@@ -46,7 +49,9 @@ export const useTaskStore = create<TaskStore>()(
                     tasks: [...state.tasks, { ...task, updatedAt: new Date().toISOString() }],
                     pendingSync: true // Mark that there are local changes needing sync
                 }))
-                get().syncWithServer() // Attempt to sync immediately
+                if (!withoutServerSync) {
+                    get().syncWithServer() // Attempt to sync immediately
+                }
             },
             /**
              * Toggles the completion status of a task and schedules a sync.
@@ -74,7 +79,7 @@ export const useTaskStore = create<TaskStore>()(
                 });
                 
                 const token = getToken();
-                if (!token || newCompletionStatus === undefined) {
+                if ((!token || newCompletionStatus === undefined) && !withoutServerSync) {
                     console.warn('Toggle task skipped: No token or status change unclear');
                     // Revert or mark pending if needed, for now, log and return
                     // If we had set pendingSync true optimistically, we'd revert it here or set it based on error.
@@ -84,24 +89,27 @@ export const useTaskStore = create<TaskStore>()(
                 // Send only the minimal change to the server
                 const changes: Partial<TaskModel> = { isCompleted: newCompletionStatus, updatedAt: (taskToUpdate as TaskModel).updatedAt };
 
-                updateTaskOnServer(taskId, changes, token)
-                    .then(syncedTaskFromServer => {
-                        console.log('Task toggled successfully on server:', syncedTaskFromServer);
-                        // Server response can be used to confirm/update local state further if necessary,
-                        // e.g., if server modifies other fields or confirms timestamp.
-                        // For now, local optimistic update is primary.
-                        // If WebSocket is active, it will also push this update.
-                        set(state => ({
-                            tasks: state.tasks.map(t => t.taskId === syncedTaskFromServer.taskId ? syncedTaskFromServer : t),
-                            pendingSync: false // Sync successful for this task
-                        }))
-                    })
-                    .catch(error => {
-                        console.error('Failed to toggle task on server:', error);
-                        // An error occurred. Mark for full sync to resolve.
-                        set({ pendingSync: true }); 
-                        // Potentially revert optimistic update here if desired, or show error to user
-                    });
+                if (!withoutServerSync) {
+                    updateTaskOnServer(taskId, changes, token)
+                        .then(syncedTaskFromServer => {
+                            console.log('Task toggled successfully on server:', syncedTaskFromServer);
+                            // Server response can be used to confirm/update local state further if necessary,
+                            // e.g., if server modifies other fields or confirms timestamp.
+                            // For now, local optimistic update is primary.
+                            // If WebSocket is active, it will also push this update.
+                            set(state => ({
+                                tasks: state.tasks.map(t => t.taskId === syncedTaskFromServer.taskId ? syncedTaskFromServer : t),
+                                pendingSync: false // Sync successful for this task
+                            }))
+                        })
+                        .catch(error => {
+                            console.error('Failed to toggle task on server:', error);
+                            // An error occurred. Mark for full sync to resolve.
+                            set({ pendingSync: true }); 
+                            // Potentially revert optimistic update here if desired, or show error to user
+                        });
+                }
+
             },
             deleteTask: (taskId) => {
                 const tasks = get().tasks
@@ -118,10 +126,11 @@ export const useTaskStore = create<TaskStore>()(
                     return;
                 }
 
-                deleteTaskOnServer(taskId, token)
-                    .then(syncedTaskFromServer => {
-                        console.log('Task updated successfully on server:', syncedTaskFromServer);
-                        set(state => ({
+                if (!withoutServerSync) {
+                    deleteTaskOnServer(taskId, token)
+                        .then(syncedTaskFromServer => {
+                            console.log('Task updated successfully on server:', syncedTaskFromServer);
+                            set(state => ({
                             tasks: state.tasks.filter(t => t.taskId !== syncedTaskFromServer.taskId),
                             pendingSync: false // Sync successful for this task
                         }))
@@ -132,6 +141,7 @@ export const useTaskStore = create<TaskStore>()(
                         set({ pendingSync: true }); // An error occurred. Mark for full sync.
                         // Optionally revert: set(state => ({ tasks: state.tasks.map(t => t.taskId === taskId ? originalTask : t) }));
                     });
+                }
 
             },
             updateTask: (taskDataToUpdate) => { // taskDataToUpdate contains taskId and fields to change
@@ -139,7 +149,8 @@ export const useTaskStore = create<TaskStore>()(
                     tasks: state.tasks.map(t => t.taskId === taskDataToUpdate.taskId ? taskDataToUpdate : t),
                     pendingSync: false
                 }))
-                updateTask(taskDataToUpdate.taskId, taskDataToUpdate, getToken())
+                if (!withoutServerSync) {
+                    updateTask(taskDataToUpdate.taskId, taskDataToUpdate, getToken())
                     .then(syncedTaskFromServer => {
                         console.log('Task updated successfully on server:', syncedTaskFromServer);
                         set(state => ({
@@ -149,6 +160,7 @@ export const useTaskStore = create<TaskStore>()(
                     })
                     .catch(error => {
                     })
+                }
                 // const optimisticUpdatedAt = new Date().toISOString();
                 // let originalTask: TaskModel | undefined;
 
@@ -202,7 +214,9 @@ export const useTaskStore = create<TaskStore>()(
                     tasks: tasksWithTimestamps,
                     pendingSync: true // Mark for sync
                 })
-                get().syncWithServer() // Attempt to sync
+                if (!withoutServerSync) {
+                    get().syncWithServer() // Attempt to sync
+                }
             },
             /**
              * Attempts to synchronize pending local changes with the server via HTTP POST.

@@ -54,8 +54,8 @@ export const Board = () => {
     return (
         <DndContext onDragEnd={handleDragEnd}>
             <div className="boardContainer">
-                <ListColumn id="inbox1" children={<TaskList title="Inbox" columnId="inbox1"/>} />
-                <ListColumn id="inbox1" children={<TaskList title="Backlog" columnId="Backlog"/>} />
+                <ListColumn id="Inbox" children={<TaskList title="Inbox" columnId="inbox1"/>} />
+                <ListColumn id="Backlog" children={<TaskList title="Backlog" columnId="Backlog"/>} />
                 <ListColumn id="Rewards" children={<RewardColumn />} />
             </div>
         </DndContext>

@@ -9,6 +9,7 @@ import { fetchTasks } from "@/entities/task/api/syncApi";
 import { useRewardStore } from "@/entities/reward";
 import { fetchRewards } from "@/entities/reward/api/syncApi";
 import { useTotalPoints } from "@/entities/task/model/store";
+import { useSettingsStore } from "@/entities/settings/store";
 
 
 export const App = () => {
@@ -17,7 +18,16 @@ export const App = () => {
     const updateTasks = useTaskStore((state) => state.updateTasks);
     const updateRewards = useRewardStore((state) => state.updateRewards);
     const totalPoints = useTotalPoints();
-        
+    const withoutServerSync = useSettingsStore((state) => state.getWithoutServerSync());
+    
+    if (withoutServerSync) {
+        return (
+            <>
+                <Header username={username} logout={logout} totalPoints={totalPoints} />
+                <Outlet />
+            </>
+        )
+    }
     if (location.pathname === ROUTES.LOGIN && token) return <Navigate to={ROUTES.BOARD} replace />;
     if (!token) return  <AuthPage />;
 

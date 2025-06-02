@@ -10,7 +10,7 @@ type TaskListProps = {
 
 export const TaskList = ({ title, columnId }: TaskListProps) => {
     const tasks = useTaskStore(state => state.tasks)
-    const stored = tasks.sort((a, b) => a.order - b.order)
+    const stored = tasks.sort((a, b) => a.order - b.order).filter(tasks => tasks.columnId == columnId)
     
     return (
         <div className={"taskListContainer"}>

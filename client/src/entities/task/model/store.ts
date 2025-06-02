@@ -18,6 +18,7 @@ type TaskStore = {
     deleteTask: (taskId: number) => void,
     updateTask: (newTask: TaskModel) => void,
     updateTasks: (newTasks: TaskModel[]) => void,
+    setTotalPoints: (totalPoints: number) => void,
     
     syncWithServer: () => Promise<void>,
     connectSync: () => void,
@@ -221,6 +222,9 @@ export const useTaskStore = create<TaskStore>()(
                 if (!withoutServerSync) {
                     get().syncWithServer() // Attempt to sync
                 }
+            },
+            setTotalPoints: (totalPoints: number) => {
+                set({ totalPoints: totalPoints })
             },
             /**
              * Attempts to synchronize pending local changes with the server via HTTP POST.

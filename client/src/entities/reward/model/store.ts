@@ -3,6 +3,7 @@ import { RewardModel } from "./RewardModel"
 import { createJSONStorage, persist } from "zustand/middleware"
 import { addReward, deleteReward, updateReward, updateRewards } from "../api/syncApi"
 import { useSettingsStore } from "@/entities/settings";
+import { useTaskStore } from "@/entities/task";
 
 type RewardStore = {
     rewards: RewardModel[],
@@ -13,7 +14,7 @@ type RewardStore = {
     deleteReward: (rewardId: number) => void,
     updateReward: (reward: RewardModel) => void,
     updateRewards: (newRewards: RewardModel[]) => void,
-    
+    claimReward: (rewardId: number) => void,
     // syncWithServer: () => Promise<void>,
     // getReward: (rewardId: number) => RewardModel | undefined
     // getRewards: () => RewardModel[]
@@ -25,6 +26,8 @@ function getToken() {
 }
 
 const withoutServerSync = useSettingsStore.getState().withoutServerSync;
+const points = useTaskStore.getState().totalPoints
+const setTotalPoints = useTaskStore.getState().setTotalPoints
 
 export const useRewardStore = create<RewardStore>()(
     persist(
@@ -79,6 +82,19 @@ export const useRewardStore = create<RewardStore>()(
                     updateRewards(rewardsWithTimestamps, getToken())
                 }
             },
+            claimReward: (rewardId: number) => {
+                const reward = get().rewards.filter(reward => reward.rewardId === rewardId)[0]
+                if (reward) {
+                    set((state) => ({
+                        rewards: state.rewards.map(reward => reward.rewardId === rewardId ? { ...reward, isClaimed: true } : reward),
+                        pendingSync: true
+                    }))
+                    setTotalPoints(points - reward.rewardPoints)
+                }
+                // if (!withoutServerSync) { //todo for sync
+                //     claimReward(rewardId, getToken())
+                // }
+            }
 
         }),
         {

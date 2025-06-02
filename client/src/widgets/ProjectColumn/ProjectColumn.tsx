@@ -40,7 +40,9 @@ export const ProjectColumn = () => {
                         items={projects.map(project => project.projectId.toString())}
                         strategy={verticalListSortingStrategy}
                     >
-                        <AddProject />
+                        <div className="addProjectContainer">
+                            <AddProject />
+                        </div>
                         {projects.map((project) => (
                             <div className="projectCardContainer" key={project.projectId} onClick={() => {
                                 setProject(project)

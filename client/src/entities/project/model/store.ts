@@ -9,7 +9,7 @@ type ProjectStore = {
     setProject: (project: ProjectModel) => void
     addProject: (project: ProjectModel) => void
     deleteProject: (projectId: number) => void
-    updateProject: (project: ProjectModel) => void
+    updateProject: (project: ProjectModel) => ProjectModel[]
     updateProjects: (projects: ProjectModel[]) => void
     completeProject: (projectId: number) => void
     // updateProjectTasks: (projectId: string, tasks: TaskModel[]) => void
@@ -47,6 +47,7 @@ export const useProjectStore = create<ProjectStore>()(
                 set((state) => ({ 
                     projects: state.projects.map((p) => p.projectId === project.projectId ? project : p) 
                 }))
+                return get().projects.map((p) => p.projectId === project.projectId ? project : p) 
             },
             updateProjects: (projects: ProjectModel[]) => 
                 set({ projects }),

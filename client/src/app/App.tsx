@@ -22,7 +22,8 @@ export const App = () => {
     const withoutServerSync = useSettingsStore((state) => state.getWithoutServerSync());
     
     if (withoutServerSync) {
-        setInterval(() => {
+        useEffect(() => {
+            const backUpData = () => {
             const tasks = JSON.parse(localStorage.getItem("tasks") || "[]")
             const rewards = JSON.parse(localStorage.getItem("rewards") || "[]")
             const projects = JSON.parse(localStorage.getItem("projects") || "[]")
@@ -34,7 +35,14 @@ export const App = () => {
                 settings: settings
             }
             download(JSON.stringify(data, null, 2), "data.json")
+            }
+            backUpData()
+            
+            const interval = setInterval(() => {
+                backUpData()
         }, 10*60*1000)   
+            return () => clearInterval(interval)
+        }, [])
         return (
             <>
                 <Header username={username} logout={logout} totalPoints={totalPoints} />

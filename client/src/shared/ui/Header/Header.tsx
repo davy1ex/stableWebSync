@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { SyncStatusDisplay } from "@/features/syncStatus";
 import { useSettingsStore } from "@/entities/settings";
-
+import { handleFileUpload } from "@/shared/lib/download";
 type HeaderProps = {
     username: string | null,
     logout: () => void,
@@ -31,7 +31,13 @@ export const Header = ({username, logout, totalPoints}: HeaderProps) => {
             </button>
             
             {withoutServerSync ? (
-                <span>Welcome, offline user</span> //todo separate offline logic to another component
+                <>
+                    <span>
+                        Welcome, offline user {/*//todo separate offline logic to another component*/}
+                    </span> 
+                    <input type="file" accept=".json" onChange={(e) => { handleFileUpload(e) }}  />
+                </>
+
             ) : (
                 <>
                     <span>Welcome, {username}</span>

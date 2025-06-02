@@ -3,6 +3,8 @@ import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { RewardModel } from "../model/RewardModel"
 import { useRewardStore } from "../model/store"
+import { useTotalPoints } from '@/entities/task/model/store'
+
 import './RewardComponent.css'
 
 export const RewardComponent = ({ reward }: { reward: RewardModel } ) => {
@@ -14,7 +16,9 @@ export const RewardComponent = ({ reward }: { reward: RewardModel } ) => {
     const [rewardPoints, setRewardPoints] = useState(reward.rewardPoints)
     const nameEditRef = useRef<HTMLDivElement>(null)
     const pointsEditRef = useRef<HTMLDivElement>(null)
-    
+    const claimReward = useRewardStore(state => state.claimReward)
+    const totalPoints = useTotalPoints();
+        
     const {
         attributes,
         listeners,
@@ -69,18 +73,20 @@ export const RewardComponent = ({ reward }: { reward: RewardModel } ) => {
           }
         }
     
-        document.addEventListener("mousedown", handleClickOutside)
+        // document.addEventListener("mousedown", handleClickOutside)
         document.addEventListener("keydown", handleEscKey)
     
         return () => {
-          document.removeEventListener("mousedown", handleClickOutside)
+        //   document.removeEventListener("mousedown", handleClickOutside)
           document.removeEventListener("keydown", handleEscKey)
         }
       }, [isNameEditing, isPointsEditing, reward.rewardName, reward.rewardPoints])
 
 
     return (
-        <div ref={setNodeRef} style={style} className="rewardContainer">
+        <div ref={setNodeRef} style={style} 
+            className={`rewardContainer ${totalPoints >= reward.rewardPoints ? "canClaimReward" : ""}`}
+        >
             {/* Drag handle area */}
             <div className="dragHandle" {...attributes} {...listeners}>
                 ⋮⋮
@@ -124,6 +130,14 @@ export const RewardComponent = ({ reward }: { reward: RewardModel } ) => {
             }}>
                 🗑️
             </div>
+            
+            {totalPoints >= reward.rewardPoints && (
+                <div className={`claimReward ${totalPoints >= reward.rewardPoints ? "canClaimReward" : ""}`} onClick={() => {
+                    claimReward(reward.rewardId)
+                }}>
+                    Claim
+                </div>
+            )}
         </div>
     )
 }

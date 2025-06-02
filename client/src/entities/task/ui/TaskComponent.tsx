@@ -4,6 +4,7 @@ import { TaskModel } from "../model/TaskModel"
 import { useTaskStore } from "../model/store"
 import { useEffect, useRef, useState } from 'react'
 import "./TaskComponent.css"
+import { useProjectStore } from '@/entities/project/model/store'
 
 type TaskComponentProps = {
     task: TaskModel
@@ -24,6 +25,7 @@ export const TaskComponent = ({task}: TaskComponentProps) => {
     const nameEditRef = useRef<HTMLDivElement>(null)
     const pointsEditRef = useRef<HTMLDivElement>(null)
     
+    const projectName = useProjectStore((state) => state.projects.find(p => p.projectId === task.projectId)?.projectName)
     
     const {
         attributes,
@@ -109,64 +111,81 @@ export const TaskComponent = ({task}: TaskComponentProps) => {
     
 
     return (
-        <div className="taskContainer" ref={setNodeRef} style={style}>
-            {/* Drag handle area */}
-            <div className="dragHandle" {...listeners} {...attributes}>
-                ⋮⋮
+        <div className="taskContainer">
+            <div className="taskContent" ref={setNodeRef} style={style}>
+                {/* Drag handle area */}
+                <div className="dragHandle" {...listeners} {...attributes}>
+                    ⋮⋮
+                </div>
+                
+                {/* Checkbox area - no drag handlers */}
+                <div className="taskCheckbox" onClick={handleToggle}>
+                    <input 
+                        type="checkbox" 
+                        checked={task.isCompleted}
+                        disabled={isToggling}
+                        onChange={() => {}} // Controlled component needs onChange
+                    />
+                </div>
+                
+                {/* Task name - part of drag handle */}
+                {!isNameEditing && (
+                    <div className="taskName" onClick={()=> {setIsNameEditing(true)}}>
+                        {task.taskName}
+                    </div>
+                )}
+
+                {isNameEditing && (
+                    <div className="taskEdit" ref={nameEditRef}>
+                        <form onSubmit={handleSubmit}>
+                            <input type="text" value={taskName} onChange={(e) => {
+                                setTaskName(e.target.value)
+                            }} />
+                        </form>
+                    </div>
+                )}
+
+                
+
+                <div className="taskAdditional">
+                    <div className="taskAdditionalLeft">
+                        {!isPointsEditing && (
+                            <div className="taskPoints" onClick={()=> {setIsPointsEditing(true)}}>
+                                🪙{taskPoints}
+                            </div>
+                        )}
+                        {isPointsEditing && (
+                            <div className="taskPoints" ref={pointsEditRef} onClick={()=> {setIsPointsEditing(true)}}>
+                                <form onSubmit={handleSubmit}>
+                                    <input type="number" value={taskPoints} onChange={(e) => {
+                                        if (Number(e.target.value) > 0) {
+                                            setTaskPoints(Number(e.target.value))
+                                        } else {
+                                            setTaskPoints(0)
+                                        }
+                                    }} />
+                                </form>
+                            </div>
+                        )}
+                        {task.projectId && (
+                            <div className="taskProjectBadge" onClick={() => {
+                                updateTask({...task, projectId: null})
+                            }}>
+                                <p>{projectName}</p>
+                            </div>
+                        )}
+                    </div>
+                    <div className="taskAdditionalRight">
+                        <div className="deleteTask" onClick={() => {
+                            deleteTask(task.taskId)
+                        }}>
+                            🗑️
+                        </div>
+                   </div>
+                </div>
             </div>
             
-            {/* Checkbox area - no drag handlers */}
-            <div className="taskCheckbox" onClick={handleToggle}>
-                <input 
-                    type="checkbox" 
-                    checked={task.isCompleted}
-                    disabled={isToggling}
-                    onChange={() => {}} // Controlled component needs onChange
-                />
-            </div>
-            
-            {/* Task name - part of drag handle */}
-            {!isNameEditing && (
-                <div className="taskName" onClick={()=> {setIsNameEditing(true)}}>
-                    {task.taskName}
-                </div>
-            )}
-
-            {isNameEditing && (
-                <div className="taskEdit" ref={nameEditRef}>
-                    <form onSubmit={handleSubmit}>
-                        <input type="text" value={taskName} onChange={(e) => {
-                            setTaskName(e.target.value)
-                        }} />
-                    </form>
-                </div>
-            )}
-
-            {!isPointsEditing && (
-                <div className="taskPoints" onClick={()=> {setIsPointsEditing(true)}}>
-                    🪙{taskPoints}
-                </div>
-            )}
-
-            {isPointsEditing && (
-                <div className="taskPoints" ref={pointsEditRef} onClick={()=> {setIsPointsEditing(true)}}>
-                    <form onSubmit={handleSubmit}>
-                        <input type="number" value={taskPoints} onChange={(e) => {
-                            if (Number(e.target.value) > 0) {
-                                setTaskPoints(Number(e.target.value))
-                            } else {
-                                setTaskPoints(0)
-                            }
-                        }} />
-                    </form>
-                </div>
-            )}
-
-            <div className="deleteButton" onClick={() => {
-                deleteTask(task.taskId)
-            }}>
-                🗑️
-            </div>
         </div>
+        
     )
 }

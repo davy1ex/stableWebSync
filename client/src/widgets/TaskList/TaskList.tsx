@@ -1,24 +1,38 @@
 import { TaskComponent } from "@/entities/task";
 import { useTaskStore } from "@/entities/task";
 import { TaskInput } from "@/features/addTask";
-import { useMemo } from "react";
+import "./TaskList.css"
 
 type TaskListProps = {
     title: string,
-    columnId: string
+    columnId: string,
+    projectId: number | null
+    showTitle?: boolean
+    showAddTask?: boolean
 }
 
-export const TaskList = ({ title, columnId }: TaskListProps) => {
+export const TaskList = ({ title, columnId, projectId, showTitle=false, showAddTask=true }: TaskListProps) => {
     const tasks = useTaskStore(state => state.tasks)
-    const stored = tasks.sort((a, b) => a.order - b.order).filter(tasks => tasks.columnId == columnId)
+    let stored = tasks.sort((a, b) => a.order - b.order)
+    
+    if (columnId) {
+        stored = stored.filter(tasks => tasks.columnId == columnId)
+    }
+    if (projectId) {
+        stored = stored.filter(task => task.projectId === projectId)
+    }
     
     return (
         <div className={"taskListContainer"}>
-            <div className="taskListTitle">
-                {title}
-            </div>
+            {showTitle && (
+                <div className="taskListTitle">
+                    {title}
+                </div>
+            )}
 
-            <TaskInput columnId={columnId} />
+            {showAddTask && (
+                <TaskInput columnId={columnId} projectId={projectId} />
+            )}
 
             <div className="taskList">
             {

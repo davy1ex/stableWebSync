@@ -38,11 +38,11 @@ export const ListColumn = ({id, children}: ListColumnProps) => {
                 strategy={verticalListSortingStrategy}
             >
                 <div className="listColumnContainer"> 
-                <div className="listColumnTitle">
-                    {id}
+                    <div className="listColumnTitle">
+                        {id}
+                    </div>
+                    {children} 
                 </div>
-                {children} 
-            </div>
             </SortableContext>
         </DndContext>
             

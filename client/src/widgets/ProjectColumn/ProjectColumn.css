@@ -1,0 +1,20 @@
+.projectCardContainer {
+    cursor: pointer;
+    width: 100%;
+}
+
+.projectCardContentHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.projectStatusBar {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.addProjectContainer {
+    width: 100%;
+}

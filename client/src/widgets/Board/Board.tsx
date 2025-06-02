@@ -6,6 +6,7 @@ import { useTaskStore } from "@/entities/task"
 import { TaskModel } from "@/entities/task"
 import { RewardColumn } from '../RewardColumn/RewardColumn';
 import "./Board.css"
+import { ProjectColumn } from '../ProjectColumn/ProjectColumn';
 
 export const Board = () => {
     const tasks = useTaskStore(state => state.tasks)
@@ -54,8 +55,9 @@ export const Board = () => {
     return (
         <DndContext onDragEnd={handleDragEnd}>
             <div className="boardContainer">
-                <ListColumn id="Inbox" children={<TaskList title="Inbox" columnId="inbox1"/>} />
-                <ListColumn id="Backlog" children={<TaskList title="Backlog" columnId="Backlog"/>} />
+                <ListColumn id="Inbox" children={<TaskList title="Inbox" columnId="Inbox" projectId={null}/>} />
+                <ListColumn id="Backlog" children={<TaskList title="Backlog" columnId="Backlog" projectId={null}/>} />
+                <ListColumn id="Projects" children={<ProjectColumn />} />
                 <ListColumn id="Rewards" children={<RewardColumn />} />
             </div>
         </DndContext>

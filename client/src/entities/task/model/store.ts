@@ -1,5 +1,5 @@
 import {create} from "zustand"
-import {persist} from "zustand/middleware"
+import {createJSONStorage, persist} from "zustand/middleware"
 import { TaskModel } from "./TaskModel"
 import { syncTasks, connectWebSocket, closeWebSocket, SyncError, updateTaskOnServer, deleteTaskOnServer, updateTask } from "../api/syncApi"
 import { useSettingsStore } from "@/entities/settings/"
@@ -7,15 +7,19 @@ import { useSettingsStore } from "@/entities/settings/"
 type TaskStore = {
     tasks: TaskModel[],
     taskPoints: number,
-    totalPoints: number,
+    totalPoints: number
+
     isOnline: boolean,
     pendingSync: boolean,
     authError: boolean,
+    
     addTask: (task: TaskModel) => void,
     toggleTaskCompleted: (taskId: number) => void,
     deleteTask: (taskId: number) => void,
     updateTask: (newTask: TaskModel) => void,
     updateTasks: (newTasks: TaskModel[]) => void,
+    setTotalPoints: (totalPoints: number) => void,
+    
     syncWithServer: () => Promise<void>,
     connectSync: () => void,
     disconnectSync: () => void,
@@ -38,6 +42,7 @@ export const useTaskStore = create<TaskStore>()(
             tasks: [],
             taskPoints: 0,
             totalPoints: 0,
+            projectId: null,
             isOnline: navigator.onLine,
             pendingSync: false,
             authError: false,
@@ -218,6 +223,9 @@ export const useTaskStore = create<TaskStore>()(
                     get().syncWithServer() // Attempt to sync
                 }
             },
+            setTotalPoints: (totalPoints: number) => {
+                set({ totalPoints: totalPoints })
+            },
             /**
              * Attempts to synchronize pending local changes with the server via HTTP POST.
              * This is called automatically after local modifications or when coming back online.
@@ -321,7 +329,8 @@ export const useTaskStore = create<TaskStore>()(
             }
         }),
         {
-            name: "task-store",
+            name: "tasks",
+            storage: createJSONStorage(() => localStorage)
         }
     )
 )

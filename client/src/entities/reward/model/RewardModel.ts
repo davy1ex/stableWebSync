@@ -4,4 +4,5 @@ export type RewardModel = {
     rewardPoints: number
     order: number
     updatedAt?: string
+    isClaimed?: boolean
 }

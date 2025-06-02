@@ -30,7 +30,22 @@
     /* justify-content: space-between; */
 }
 
-.rewardName {
-    font-size: 1.2rem;
-    font-weight: bold;
+.claimReward {
+    cursor: pointer;
+}
+
+.canClaimReward {
+    animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
 }

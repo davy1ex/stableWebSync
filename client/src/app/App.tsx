@@ -10,7 +10,7 @@ import { useRewardStore } from "@/entities/reward";
 import { fetchRewards } from "@/entities/reward/api/syncApi";
 import { useTotalPoints } from "@/entities/task/model/store";
 import { useSettingsStore } from "@/entities/settings";
-
+import { download } from "@/shared/lib/download";
 
 export const App = () => {
     const { token, username, logout } = useAuth();
@@ -21,6 +21,19 @@ export const App = () => {
     const withoutServerSync = useSettingsStore((state) => state.getWithoutServerSync());
     
     if (withoutServerSync) {
+        setInterval(() => {
+            const tasks = JSON.parse(localStorage.getItem("tasks") || "[]")
+            const rewards = JSON.parse(localStorage.getItem("rewards") || "[]")
+            const projects = JSON.parse(localStorage.getItem("projects") || "[]")
+            const settings = JSON.parse(localStorage.getItem("settings") || "[]")
+            const data = {
+                tasks: tasks,
+                rewards: rewards,
+                projects: projects,
+                settings: settings
+            }
+            download(JSON.stringify(data, null, 2), "data.json")
+        }, 10*60*1000)   
         return (
             <>
                 <Header username={username} logout={logout} totalPoints={totalPoints} />

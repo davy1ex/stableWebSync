@@ -78,10 +78,10 @@ export const ProjectModal = ({ projectId, isOpen, onClose }: ProjectModalProps) 
                             project?.projectDescription.length > 0 ? (
                                 <>
                                     {project.projectDescription.split("\n").map((line, index) => (
-                                        <>
+                                        <p key={index}>
                                             {line}
                                             <br />
-                                        </>
+                                        </p>
                                     ))}
                                 </>
                             ) : (

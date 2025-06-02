@@ -3,7 +3,7 @@ import { RewardModel } from "./RewardModel"
 import { createJSONStorage, persist } from "zustand/middleware"
 import { addReward, deleteReward, updateReward, updateRewards } from "../api/syncApi"
 import { useSettingsStore } from "@/entities/settings";
-import { useTaskStore } from "@/entities/task";
+import { usePointsStore } from "@/entities/Points";
 
 type RewardStore = {
     rewards: RewardModel[],
@@ -26,8 +26,6 @@ function getToken() {
 }
 
 const withoutServerSync = useSettingsStore.getState().withoutServerSync;
-const points = useTaskStore.getState().totalPoints
-const setTotalPoints = useTaskStore.getState().setTotalPoints
 
 export const useRewardStore = create<RewardStore>()(
     persist(
@@ -84,12 +82,14 @@ export const useRewardStore = create<RewardStore>()(
             },
             claimReward: (rewardId: number) => {
                 const reward = get().rewards.filter(reward => reward.rewardId === rewardId)[0]
+                const setTotalPoints = usePointsStore.getState().setTotalPoints
+                const totalPoints = usePointsStore.getState().totalPoints
                 if (reward) {
                     set((state) => ({
                         rewards: state.rewards.map(reward => reward.rewardId === rewardId ? { ...reward, isClaimed: true } : reward),
                         pendingSync: true
                     }))
-                    setTotalPoints(points - reward.rewardPoints)
+                    setTotalPoints(totalPoints - reward.rewardPoints)
                 }
                 // if (!withoutServerSync) { //todo for sync
                 //     claimReward(rewardId, getToken())

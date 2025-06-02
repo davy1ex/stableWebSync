@@ -6,10 +6,15 @@ import { AddProject } from "@/features/addProject"
 import { ProjectModal } from "../ProjectModal/ui/ProjectModal"
 import "./ProjectColumn.css"
 
+const statuses = ["notStarted", "active", "waiting", "completed"] // todo make separated as consts
+
 export const ProjectColumn = () => {
     const projects = useProjectStore(state => state.projects)
     const updateProjects = useProjectStore(state => state.updateProjects)
     const [project, setProject] = useState<ProjectModel | null>(null)
+    const [selectedStatus, setSelectedStatus] = useState<string>("notStarted")
+
+    const filteredProjects = projects.filter(project => project.status === selectedStatus)
 
     const [isOpen, setIsOpen] = useState(false)
 
@@ -35,15 +40,25 @@ export const ProjectColumn = () => {
     return (
         <>
             <div className="projectColumn">
+                <div className="projectColumnStatusSelect">
+                    {statuses.map((status) => (
+                        <div 
+                            className={`projectColumnStatusItem ${status === selectedStatus ? "active" : ""}`} 
+                            key={status} 
+                            onClick={() => setSelectedStatus(status)}>
+                            {status} {(projects.filter(p => p.status === status)).length}
+                        </div>
+                    ))}
+                </div>
                 <DndContext onDragEnd={handleDragEnd}>
                     <SortableContext
-                        items={projects.map(project => project.projectId.toString())}
+                        items={filteredProjects.map(project => project.projectId.toString())}
                         strategy={verticalListSortingStrategy}
                     >
                         <div className="addProjectContainer">
                             <AddProject />
                         </div>
-                        {projects.map((project) => (
+                        {filteredProjects.map((project) => (
                             <div className="projectCardContainer" key={project.projectId} onClick={() => {
                                 setProject(project)
                                 setIsOpen(true)

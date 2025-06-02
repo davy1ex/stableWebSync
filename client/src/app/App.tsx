@@ -8,8 +8,8 @@ import { useTaskStore } from "@/entities/task";
 import { fetchTasks } from "@/entities/task/api/syncApi";
 import { useRewardStore } from "@/entities/reward";
 import { fetchRewards } from "@/entities/reward/api/syncApi";
-import { useTotalPoints } from "@/entities/task/model/store";
 import { useSettingsStore } from "@/entities/settings";
+import { usePointsStore } from "@/entities/Points";
 import { download } from "@/shared/lib/download";
 
 export const App = () => {
@@ -17,7 +17,8 @@ export const App = () => {
     const location = useLocation();
     const updateTasks = useTaskStore((state) => state.updateTasks);
     const updateRewards = useRewardStore((state) => state.updateRewards);
-    const totalPoints = useTotalPoints();
+    const totalPoints = usePointsStore((state) => state.totalPoints);
+    console.log("APP totalPoints", totalPoints)
     const withoutServerSync = useSettingsStore((state) => state.getWithoutServerSync());
     
     if (withoutServerSync) {

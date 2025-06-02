@@ -18,3 +18,20 @@
 .addProjectContainer {
     width: 100%;
 }
+
+.projectColumnStatusSelect {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.projectColumnStatusItem {
+    cursor: pointer;
+    padding: 5px;
+    border: 1px solid black;
+}
+
+.projectColumnStatusItem.active {
+    background-color: #007bff;
+    color: white;
+}

@@ -3,8 +3,9 @@ import { CSS } from '@dnd-kit/utilities'
 
 import { ProjectModel } from "../model/model"
 import { useProjectStore } from "../model/store"
-import "./ProjectCard.css"
 import { ProgressBarByItems } from '@/shared/ui/ProgressBar/ProgressBar'
+import "./ProjectCard.css"
+
 type ProjectCardProps = {
     project: ProjectModel   
 }
@@ -48,6 +49,9 @@ export const ProjectCard = ({ project }: ProjectCardProps) => {
                     }}>
                         🗑️
                     </div>     
+                </div>
+                <div className="projectStatus">
+                    {project.status}
                 </div>
                 <div className="projectStatusBar">
                     <ProgressBarByItems allItems={project.roughPlan.length} completedItems={project.roughPlan.filter(p => p.isCompleted).length} />

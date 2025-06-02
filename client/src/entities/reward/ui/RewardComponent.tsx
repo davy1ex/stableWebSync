@@ -19,9 +19,6 @@ export const RewardComponent = ({ reward }: { reward: RewardModel } ) => {
     const claimReward = useRewardStore(state => state.claimReward)
     const totalPoints = useTotalPoints();
         
-    console.log("totalpoint", totalPoints)
-    console.log("rewardpoints", reward.rewardPoints)
-    console.log(totalPoints >= reward.rewardPoints)
     const {
         attributes,
         listeners,

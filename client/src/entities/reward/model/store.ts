@@ -2,7 +2,8 @@ import { create } from "zustand"
 import { RewardModel } from "./RewardModel"
 import { persist } from "zustand/middleware"
 import { addReward, deleteReward, updateReward, updateRewards } from "../api/syncApi"
-import { useSettingsStore } from "@/entities/settings/store";
+import { useSettingsStore } from "@/entities/settings";
+
 type RewardStore = {
     rewards: RewardModel[],
     // isOnline: boolean,

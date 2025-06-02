@@ -23,6 +23,8 @@ export const ProjectModal = ({ projectId, isOpen, onClose }: ProjectModalProps) 
     
     const [isProjectNameEditing, setIsProjectNameEditing] = useState(false)
     const [inputedProjectName, setInputedProjectName] = useState(project?.projectName)
+    
+    const [isDescriptionEditing, setIsDescriptionEditing] = useState(false)
 
     const [isPointsEditing, setIsPointsEditing] = useState(false)
     const [inputedPoints, setInputedPoints] = useState(project?.projectPoints)
@@ -50,7 +52,10 @@ export const ProjectModal = ({ projectId, isOpen, onClose }: ProjectModalProps) 
         setIsProjectNameEditing(false)
     }
 
-    
+    const handleUpdateDescription = (inputedDescription: string) => {
+        if (!project) return
+        updateProject({ ...project, projectDescription: inputedDescription || "" })
+    }
     
     if (!project) return null
     return (
@@ -68,8 +73,38 @@ export const ProjectModal = ({ projectId, isOpen, onClose }: ProjectModalProps) 
                                 </form>
                         )}
                     </div>
-                    {/* <h2>Project Description</h2> */}
-                    {/* <p>{project?.projectDescription}</p> */}
+                    <div className="projectDescription" onClick={() => setIsDescriptionEditing(true)}>
+                        {!isDescriptionEditing && (
+                            project?.projectDescription.length > 0 ? (
+                                <>
+                                    {project.projectDescription.split("\n").map((line, index) => (
+                                        <>
+                                            {line}
+                                            <br />
+                                        </>
+                                    ))}
+                                </>
+                            ) : (
+                                <p>Click for start create description</p>
+                            )
+                        )}
+                        {isDescriptionEditing && (
+                            <div className="projectDescriptionEdit">
+                                <textarea 
+                                    className="projectDescriptionTextarea"
+                                    value={project?.projectDescription} 
+                                    onChange={(e) => handleUpdateDescription(e.target.value)}
+                                    style={{
+                                        height: "150px",
+                                        width: "100%",        
+                                        resize: "vertical",      
+                                        overflowY: "auto", 
+                                      }}
+                                />
+                            </div>
+                            
+                        )}
+                    </div>
                     <div className="projectStatus">
                         <ProgressBarByItems allItems={project?.roughPlan.length || 0} completedItems={project?.roughPlan.filter(p => p.isCompleted).length || 0} />
 

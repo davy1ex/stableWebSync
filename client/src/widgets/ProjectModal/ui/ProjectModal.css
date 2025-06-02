@@ -12,6 +12,12 @@
     height: 60px;
 }
 
+.projectDescription {
+    width: fit-content;
+    margin-right: auto;
+    display: flex;
+}
+
 .projectStatus {
     display: flex;
     justify-content: space-between;

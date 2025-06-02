@@ -38,24 +38,24 @@ export const RewardComponent = ({ reward }: { reward: RewardModel } ) => {
     }
 
     useEffect(() => {
-        function handleClickOutside(event: MouseEvent) {
-            if (
-                isNameEditing && 
-                nameEditRef.current && 
-                !nameEditRef.current.contains(event.target as Node)
-            ) {
-                setIsNameEditing(false)
-                setRewardName(reward.rewardName) 
-            }
-          if (
-            isPointsEditing && 
-            pointsEditRef.current && 
-            !pointsEditRef.current.contains(event.target as Node)
-        ) {
-            setIsPointsEditing(false)
-            setRewardPoints(reward.rewardPoints)
-        }
-        }
+        // function handleClickOutside(event: MouseEvent) { // TODO: delete it or refactor
+        //     if (
+        //         isNameEditing && 
+        //         nameEditRef.current && 
+        //         !nameEditRef.current.contains(event.target as Node)
+        //     ) {
+        //         setIsNameEditing(false)
+        //         setRewardName(reward.rewardName) 
+        //     }
+        //   if (
+        //     isPointsEditing && 
+        //     pointsEditRef.current && 
+        //     !pointsEditRef.current.contains(event.target as Node)
+        // ) {
+        //     setIsPointsEditing(false)
+        //     setRewardPoints(reward.rewardPoints)
+        // }
+        // }
     
         function handleEscKey(event: KeyboardEvent) {
           if (event.key === 'Escape' && isNameEditing) {

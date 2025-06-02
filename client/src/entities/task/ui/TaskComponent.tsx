@@ -2,7 +2,7 @@ import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { TaskModel } from "../model/TaskModel"
 import { useTaskStore } from "../model/store"
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import "./TaskComponent.css"
 
 type TaskComponentProps = {
@@ -17,8 +17,12 @@ export const TaskComponent = ({task}: TaskComponentProps) => {
     const [isToggling, setIsToggling] = useState(false)
     const [taskName, setTaskName] = useState(task.taskName)
     const [taskPoints, setTaskPoints] = useState(task.taskPoints)
-    const [isEditingTaskName, setIsEditingTaskName] = useState(false)
-    const [isEditingTaskPoints, setIsEditingTaskPoints] = useState(false)
+
+
+    const [isNameEditing, setIsNameEditing] = useState(false)
+    const [isPointsEditing, setIsPointsEditing] = useState(false)
+    const nameEditRef = useRef<HTMLDivElement>(null)
+    const pointsEditRef = useRef<HTMLDivElement>(null)
     
     
     const {
@@ -54,10 +58,55 @@ export const TaskComponent = ({task}: TaskComponentProps) => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
-        setIsEditingTaskName(false)
-        setIsEditingTaskPoints(false)
+        setIsNameEditing(false)
+        setIsPointsEditing(false)
         updateTask({...task, taskName: taskName, taskPoints: taskPoints})
     }
+
+    useEffect(() => {
+        // function handleClickOutside(event: MouseEvent) { // TODO: delete it or refactor
+        //     if (
+        //         isNameEditing && 
+        //         nameEditRef.current &&
+        //         !nameEditRef.current.contains(event?.target as Node)
+        //     ) {
+        //         console.log("handleClickOutside", taskName)
+        //         setIsNameEditing(false)
+        //         setTaskName(task.taskName)
+        //         updateTask({...task, taskName: task.taskName})
+        //     }
+        //     if (
+        //         isPointsEditing && 
+        //         pointsEditRef.current && 
+        //         !pointsEditRef.current.contains(event?.target as Node)
+        //     ) {
+        //        setIsPointsEditing(false)
+        //        setTaskPoints(task.taskPoints)
+        //    }
+        // }
+        
+
+        function handleEscKey(event: KeyboardEvent) {
+            if (event.key === 'Escape' && isNameEditing) {
+              setIsNameEditing(false)
+              setTaskName(task.taskName)
+            }
+  
+            if (event.key === 'Escape' && isPointsEditing) {
+              setIsPointsEditing(false)
+              setTaskPoints(task.taskPoints)
+            }
+          }
+      
+        //   document.addEventListener("mousedown", handleClickOutside)
+          document.addEventListener("keydown", handleEscKey)
+      
+          return () => {
+            // document.removeEventListener("mousedown", handleClickOutside)
+            document.removeEventListener("keydown", handleEscKey)
+          }
+        }, [isNameEditing, isPointsEditing, task.taskName, task.taskPoints])
+    
 
     return (
         <div className="taskContainer" ref={setNodeRef} style={style}>
@@ -77,14 +126,14 @@ export const TaskComponent = ({task}: TaskComponentProps) => {
             </div>
             
             {/* Task name - part of drag handle */}
-            {!isEditingTaskName && (
-                <div className="taskName" onClick={()=> {setIsEditingTaskName(true)}}>
+            {!isNameEditing && (
+                <div className="taskName" onClick={()=> {setIsNameEditing(true)}}>
                     {task.taskName}
                 </div>
             )}
 
-            {isEditingTaskName && (
-                <div className="taskEdit">
+            {isNameEditing && (
+                <div className="taskEdit" ref={nameEditRef}>
                     <form onSubmit={handleSubmit}>
                         <input type="text" value={taskName} onChange={(e) => {
                             setTaskName(e.target.value)
@@ -93,14 +142,14 @@ export const TaskComponent = ({task}: TaskComponentProps) => {
                 </div>
             )}
 
-            {!isEditingTaskPoints && (
-                <div className="taskPoints" onClick={()=> {setIsEditingTaskPoints(true)}}>
+            {!isPointsEditing && (
+                <div className="taskPoints" onClick={()=> {setIsPointsEditing(true)}}>
                     🪙{taskPoints}
                 </div>
             )}
 
-            {isEditingTaskPoints && (
-                <div className="taskPoints" onClick={()=> {setIsEditingTaskPoints(true)}}>
+            {isPointsEditing && (
+                <div className="taskPoints" ref={pointsEditRef} onClick={()=> {setIsPointsEditing(true)}}>
                     <form onSubmit={handleSubmit}>
                         <input type="number" value={taskPoints} onChange={(e) => {
                             if (Number(e.target.value) > 0) {

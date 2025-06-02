@@ -69,11 +69,11 @@ export const RewardComponent = ({ reward }: { reward: RewardModel } ) => {
           }
         }
     
-        document.addEventListener("mousedown", handleClickOutside)
+        // document.addEventListener("mousedown", handleClickOutside)
         document.addEventListener("keydown", handleEscKey)
     
         return () => {
-          document.removeEventListener("mousedown", handleClickOutside)
+        //   document.removeEventListener("mousedown", handleClickOutside)
           document.removeEventListener("keydown", handleEscKey)
         }
       }, [isNameEditing, isPointsEditing, reward.rewardName, reward.rewardPoints])

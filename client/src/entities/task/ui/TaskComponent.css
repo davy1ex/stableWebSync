@@ -1,5 +1,18 @@
 .taskContainer {
     display: flex;
+    width: 85%;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+    flex-direction: column;
+    
+    cursor: default;
+}
+
+.taskContent {
+    display: flex;
     align-items: center;
     padding: 8px;
     background: white;
@@ -26,4 +39,24 @@
     flex: 1;
     cursor: grab;
     user-select: none;
+}
+
+.taskProjectBadge {
+    display: flex;
+    justify-content: flex-end;
+    align-self: flex-end;
+    align-items: center;
+    
+    margin: 0 4px;
+    padding: 5px;
+    
+    cursor: grab;
+    color: #999;
+    user-select: none;
+    background: #f0f0f0;
+    border-radius: 4px;
+    width: fit-content;
+    height: 20px;
+
+    border: 1px solid #999;
 }

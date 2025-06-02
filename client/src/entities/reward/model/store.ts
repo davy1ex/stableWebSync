@@ -1,6 +1,6 @@
 import { create } from "zustand"
 import { RewardModel } from "./RewardModel"
-import { persist } from "zustand/middleware"
+import { createJSONStorage, persist } from "zustand/middleware"
 import { addReward, deleteReward, updateReward, updateRewards } from "../api/syncApi"
 import { useSettingsStore } from "@/entities/settings";
 
@@ -82,7 +82,8 @@ export const useRewardStore = create<RewardStore>()(
 
         }),
         {
-            name: "reward-store"
+            name: "rewards",
+            storage: createJSONStorage(() => localStorage)
         }
     )
 )

@@ -5,7 +5,7 @@ export const useAddTask = () => {
     const addTask = useTaskStore((state)=>state.addTask)
     const tasks = useTaskStore((state)=>state.tasks)
     
-    return (taskName: string, columnId: string) => {
+    return (taskName: string, columnId: string, projectId: number | null) => {
         // Get tasks in the target column and find the highest order
         const columnTasks = tasks
             .filter(t => t.columnId === columnId)
@@ -20,9 +20,10 @@ export const useAddTask = () => {
             taskId: Date.now(),
             taskName,
             columnId,
+            projectId: projectId,
             isCompleted: false,
             order: tasks.length + 1,
-            taskPoints: 0
+            taskPoints: 10
         }
         
         addTask(newTask)

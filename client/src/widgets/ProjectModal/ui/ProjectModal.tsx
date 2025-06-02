@@ -13,6 +13,8 @@ type ProjectModalProps = {
     onClose: () => void
 }
 
+const statuses = ["notStarted", "active", "waiting", "completed"]
+
 export const ProjectModal = ({ projectId, isOpen, onClose }: ProjectModalProps) => {
     const project = useProjectStore(state => state.projects.find(p => p.projectId === projectId))
     const tasks = useTaskStore(state => state.tasks)
@@ -31,6 +33,8 @@ export const ProjectModal = ({ projectId, isOpen, onClose }: ProjectModalProps) 
 
     const toggleRoughPlanItem = useProjectStore(state => state.toggleRoughPlanItem)
 
+    const completeProject = useProjectStore(state => state.completeProject)
+    
     const handleAddRoughPlan = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         if (!project) return
@@ -56,6 +60,15 @@ export const ProjectModal = ({ projectId, isOpen, onClose }: ProjectModalProps) 
         if (!project) return
         updateProject({ ...project, projectDescription: inputedDescription || "" })
     }
+
+    const handleUpdateStatus = (status: "notStarted" | "active" | "waiting" | "completed") => {
+        if (!project) return
+        if (status === "completed") {
+            console.log("completed")
+            completeProject(project.projectId)
+        }
+        updateProject({ ...project, status: status })
+    }
     
     if (!project) return null
     return (
@@ -73,15 +86,28 @@ export const ProjectModal = ({ projectId, isOpen, onClose }: ProjectModalProps) 
                                 </form>
                         )}
                     </div>
+                    <div className="projectStatus">
+                        <select 
+                            value={project?.status} 
+                            onChange={(e) => 
+                                handleUpdateStatus(e.target.value as "notStarted" | "active" | "waiting" | "completed")
+                            }>
+                            {
+                                statuses.map(status => (
+                                    <option value={status}>{status}</option>
+                                ))
+                            }
+                        </select>
+                    </div>
                     <div className="projectDescription" onClick={() => setIsDescriptionEditing(true)}>
                         {!isDescriptionEditing && (
                             project?.projectDescription.length > 0 ? (
                                 <>
                                     {project.projectDescription.split("\n").map((line, index) => (
-                                        <>
+                                        <p key={index}>
                                             {line}
                                             <br />
-                                        </>
+                                        </p>
                                     ))}
                                 </>
                             ) : (

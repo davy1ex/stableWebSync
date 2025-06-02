@@ -16,7 +16,7 @@ export const AddProject = () => {
         <>
             <form onSubmit={handleSubmit}>
                 <input className="addProjectInput" type="text" placeholder="Project Name" value={projectName} onChange={(e) => setProjectName(e.target.value)} />
-                <button className="addProjectButton" type="submit">Add Project</button>
+                <button className="addProjectButton" type="submit">+</button>
             </form>
         </>
     )

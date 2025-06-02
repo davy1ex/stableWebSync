@@ -3,8 +3,7 @@ import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { RewardModel } from "../model/RewardModel"
 import { useRewardStore } from "../model/store"
-import { useTotalPoints } from '@/entities/task/model/store'
-
+import { usePointsStore } from '@/entities/Points'
 import './RewardComponent.css'
 
 export const RewardComponent = ({ reward }: { reward: RewardModel } ) => {
@@ -17,7 +16,7 @@ export const RewardComponent = ({ reward }: { reward: RewardModel } ) => {
     const nameEditRef = useRef<HTMLDivElement>(null)
     const pointsEditRef = useRef<HTMLDivElement>(null)
     const claimReward = useRewardStore(state => state.claimReward)
-    const totalPoints = useTotalPoints();
+    const totalPoints = usePointsStore(state => state.totalPoints)
         
     const {
         attributes,

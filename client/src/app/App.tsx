@@ -8,8 +8,8 @@ import { useTaskStore } from "@/entities/task";
 import { fetchTasks } from "@/entities/task/api/syncApi";
 import { useRewardStore } from "@/entities/reward";
 import { fetchRewards } from "@/entities/reward/api/syncApi";
-import { useTotalPoints } from "@/entities/task/model/store";
 import { useSettingsStore } from "@/entities/settings";
+import { usePointsStore } from "@/entities/Points";
 import { download } from "@/shared/lib/download";
 
 export const App = () => {
@@ -17,11 +17,13 @@ export const App = () => {
     const location = useLocation();
     const updateTasks = useTaskStore((state) => state.updateTasks);
     const updateRewards = useRewardStore((state) => state.updateRewards);
-    const totalPoints = useTotalPoints();
+    const totalPoints = usePointsStore((state) => state.totalPoints);
+    console.log("APP totalPoints", totalPoints)
     const withoutServerSync = useSettingsStore((state) => state.getWithoutServerSync());
     
     if (withoutServerSync) {
-        setInterval(() => {
+        useEffect(() => {
+            const backUpData = () => {
             const tasks = JSON.parse(localStorage.getItem("tasks") || "[]")
             const rewards = JSON.parse(localStorage.getItem("rewards") || "[]")
             const projects = JSON.parse(localStorage.getItem("projects") || "[]")
@@ -33,7 +35,14 @@ export const App = () => {
                 settings: settings
             }
             download(JSON.stringify(data, null, 2), "data.json")
+            }
+            backUpData()
+            
+            const interval = setInterval(() => {
+                backUpData()
         }, 10*60*1000)   
+            return () => clearInterval(interval)
+        }, [])
         return (
             <>
                 <Header username={username} logout={logout} totalPoints={totalPoints} />

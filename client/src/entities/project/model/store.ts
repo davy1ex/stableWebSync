@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { TaskModel } from "@/entities/task";
 import { ProjectModel } from "./model";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { usePointsStore } from "@/entities/Points";
 
 type ProjectStore = {
     projects: ProjectModel[]
@@ -10,6 +11,7 @@ type ProjectStore = {
     deleteProject: (projectId: number) => void
     updateProject: (project: ProjectModel) => void
     updateProjects: (projects: ProjectModel[]) => void
+    completeProject: (projectId: number) => void
     // updateProjectTasks: (projectId: string, tasks: TaskModel[]) => void
     updateProjectRoughPlan: (projectId: number, roughPlan: Array<{
         todo: string, isCompleted: boolean
@@ -33,11 +35,19 @@ export const useProjectStore = create<ProjectStore>()(
                 
                 })
             ),
-            updateProject: (project: ProjectModel) => 
+            updateProject: (project: ProjectModel) => {
+                const preProjectStatus = get().projects.find(p => p.projectId === project.projectId)?.status
+                if (preProjectStatus === "completed" && project.status !== "completed") {
+                    const totalPoints = usePointsStore.getState().totalPoints
+                    const setTotalPoints = usePointsStore.getState().setTotalPoints
+                    if (totalPoints > project.projectPoints) {
+                        setTotalPoints(totalPoints - project.projectPoints)
+                    }
+                }
                 set((state) => ({ 
                     projects: state.projects.map((p) => p.projectId === project.projectId ? project : p) 
-                })
-            ),
+                }))
+            },
             updateProjects: (projects: ProjectModel[]) => 
                 set({ projects }),
             updateProjectTasks: (projectId: number, tasks: TaskModel[]) => 
@@ -54,8 +64,24 @@ export const useProjectStore = create<ProjectStore>()(
                             ? { ...p, 
                                 roughPlan: p.roughPlan.map((rp) => rp.todo === roughPlanItem.todo ? { ...rp, isCompleted: !rp.isCompleted } : rp) } 
                             : p) })),
-            updateProjectPoints: (projectId: number, points: number) => 
-                set((state) => ({ projects: state.projects.map((p) => p.projectId === projectId ? { ...p, projectPoints: points } : p) })),            
+            updateProjectPoints: (projectId: number) => 
+                set((state) => ({ 
+                    projects: state.projects.map((p) => p.projectId === projectId ? { ...p, projectPoints: p.projectPoints } : p) })),            
+            completeProject: (projectId: number) => {
+                const project = get().projects.find(project => project.projectId === projectId)
+                if (!project) return 
+                
+                const totalPoints = usePointsStore.getState().totalPoints
+                const setTotalPoints = usePointsStore.getState().setTotalPoints
+                setTotalPoints(totalPoints + project.projectPoints)
+                
+                set((state) => ({
+                    projects: state.projects.map(project => 
+                        project.projectId === projectId 
+                            ? {...project, status: "completed"} 
+                            : project)
+                }))
+            }
         }),
 
         {

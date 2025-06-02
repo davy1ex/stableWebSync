@@ -1,5 +1,5 @@
 .addProjectInput {
-    width: 100%;
+    width: 90%;
     height: 30px;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -7,5 +7,8 @@
 }
 
 .addProjectButton {
-    width: 100%;
+    width: 10%;
+    max-width: 30px;
+    padding: 0;
+    margin: 0;
 }

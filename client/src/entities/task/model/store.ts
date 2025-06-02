@@ -3,6 +3,7 @@ import {createJSONStorage, persist} from "zustand/middleware"
 import { TaskModel } from "./TaskModel"
 import { syncTasks, connectWebSocket, closeWebSocket, SyncError, updateTaskOnServer, deleteTaskOnServer, updateTask } from "../api/syncApi"
 import { useSettingsStore } from "@/entities/settings/"
+import { usePointsStore } from "@/entities/Points"
 
 type TaskStore = {
     tasks: TaskModel[],
@@ -18,13 +19,12 @@ type TaskStore = {
     deleteTask: (taskId: number) => void,
     updateTask: (newTask: TaskModel) => void,
     updateTasks: (newTasks: TaskModel[]) => void,
-    setTotalPoints: (totalPoints: number) => void,
-    
-    syncWithServer: () => Promise<void>,
-    connectSync: () => void,
-    disconnectSync: () => void,
-    setOnline: (online: boolean) => void,
-    handleAuthError: () => void
+       
+    // syncWithServer: () => Promise<void>,
+    // connectSync: () => void,
+    // disconnectSync: () => void,
+    // setOnline: (online: boolean) => void,
+    // handleAuthError: () => void
 }
 
 function getToken() {
@@ -32,9 +32,6 @@ function getToken() {
 }
 
 const withoutServerSync = useSettingsStore.getState().withoutServerSync;
-
-export const useTotalPoints = () =>
-    useTaskStore(state => state.tasks.reduce((acc, t) => t.isCompleted ? acc + t.taskPoints : acc, 0));
 
 export const useTaskStore = create<TaskStore>()(
     persist(
@@ -62,39 +59,36 @@ export const useTaskStore = create<TaskStore>()(
              * Toggles the completion status of a task and schedules a sync.
              */
             toggleTaskCompleted: (taskId) => {
-                let newCompletionStatus: boolean | undefined;
-                let taskToUpdate: Partial<TaskModel> = {};
-
-                set((state) => {
-                    const totalPoints = state.tasks.reduce((acc, task) => {
-                        if (task.isCompleted) {
-                            return acc + task.taskPoints;
-                        }
-                        return acc;
-                    }, 0)
-                    const newTasks = state.tasks.map((task) => {
-                        if (task.taskId === taskId) {
-                            newCompletionStatus = !task.isCompleted;
-                            taskToUpdate = { taskId, isCompleted: newCompletionStatus, updatedAt: new Date().toISOString() };
-                            return { ...task, isCompleted: newCompletionStatus, updatedAt: taskToUpdate.updatedAt };
-                        }
-                        return task;
-                    });
-                    return { totalPoints: totalPoints, tasks: newTasks, pendingSync: false }; // Optimistic update, clear pendingSync for this op initially
-                });
+                let taskToUpdate: Partial<TaskModel> = get().tasks.find(t => t.taskId === taskId) || {};
+                const newCompletionStatus = !taskToUpdate.isCompleted
+                const setTotalPoints = usePointsStore.getState().setTotalPoints
+                const totalPoints = usePointsStore.getState().totalPoints
                 
-                const token = getToken();
-                if ((!token || newCompletionStatus === undefined) && !withoutServerSync) {
-                    console.warn('Toggle task skipped: No token or status change unclear');
-                    // Revert or mark pending if needed, for now, log and return
-                    // If we had set pendingSync true optimistically, we'd revert it here or set it based on error.
-                    return;
+                if (newCompletionStatus) {
+                    setTotalPoints(totalPoints + (taskToUpdate.taskPoints || 0))
+                } else {
+                    setTotalPoints(totalPoints - (taskToUpdate.taskPoints || 0))
                 }
-
-                // Send only the minimal change to the server
-                const changes: Partial<TaskModel> = { isCompleted: newCompletionStatus, updatedAt: (taskToUpdate as TaskModel).updatedAt };
+                set((state) => {
+                    return { tasks: 
+                        state.tasks.map(t => t.taskId === taskId 
+                            ? { ...t, isCompleted: newCompletionStatus } 
+                            : t
+                        ), pendingSync: false }; // Optimistic update, clear pendingSync for this op initially
+                });
 
                 if (!withoutServerSync) {
+                    const token = getToken();
+                    if ((!token || newCompletionStatus === undefined) && !withoutServerSync) {
+                        console.warn('Toggle task skipped: No token or status change unclear');
+                        // Revert or mark pending if needed, for now, log and return
+                        // If we had set pendingSync true optimistically, we'd revert it here or set it based on error.
+                        return;
+                    }
+
+                    // Send only the minimal change to the server
+                    const changes: Partial<TaskModel> = { isCompleted: newCompletionStatus, updatedAt: (taskToUpdate as TaskModel).updatedAt };
+                    
                     updateTaskOnServer(taskId, changes, token)
                         .then(syncedTaskFromServer => {
                             console.log('Task toggled successfully on server:', syncedTaskFromServer);

@@ -1,6 +1,6 @@
 .projectCardContainer {
     cursor: pointer;
-    width: 100%;
+    width: fit-content;
 }
 
 .projectCardContentHeader {

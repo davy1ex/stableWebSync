@@ -1,17 +1,44 @@
 import { DndContext, DragEndEvent } from '@dnd-kit/core';
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { ListColumn } from "@/widgets/ListColumn/ListColumn"
 import { TaskList } from "@/widgets/TaskList/TaskList"
 import { useTaskStore } from "@/entities/task"
 import { TaskModel } from "@/entities/task"
 import { RewardColumn } from '../RewardColumn/RewardColumn';
-import "./Board.css"
 import { ProjectColumn } from '../ProjectColumn/ProjectColumn';
+import "./Board.css"
 
 export const Board = () => {
     const tasks = useTaskStore(state => state.tasks)
     const updateTasks = useTaskStore(state => state.updateTasks)
-    
+
+    const containerRef = useRef<HTMLDivElement>(null)
+    const isDown = useRef(false)
+    const startX = useRef(0)
+    const scrollLeft = useRef(0)
+
+    const handleMouseDown = (e: React.MouseEvent) => {
+        isDown.current = true
+        startX.current = e.pageX - (containerRef.current?.offsetLeft || 0)
+        scrollLeft.current = containerRef.current?.scrollLeft || 0
+    }
+
+    const handleMouseLeave = () => {
+        isDown.current = false
+    }
+
+    const handleMouseUp = () => {
+        isDown.current = false
+    }
+
+    const handleMouseMove = (e: React.MouseEvent) => {
+        if (!isDown.current || !containerRef.current) return
+        e.preventDefault()
+        const x = e.pageX - containerRef.current.offsetLeft
+        const walk = (x - startX.current) * 1 // scroll speed
+        containerRef.current.scrollLeft = scrollLeft.current - walk
+    }
+        
     const handleDragEnd = useCallback((event: DragEndEvent) => {
         const { active, over } = event;
         
@@ -54,7 +81,13 @@ export const Board = () => {
 
     return (
         <DndContext onDragEnd={handleDragEnd}>
-            <div className="boardContainer">
+            <div 
+                className="boardContainer" 
+                ref={containerRef}
+                onMouseDown={handleMouseDown}
+                onMouseLeave={handleMouseLeave}
+                onMouseUp={handleMouseUp}
+                onMouseMove={handleMouseMove}>
                 <ListColumn id="Inbox" children={<TaskList title="Inbox" columnId="Inbox" projectId={null}/>} />
                 <ListColumn id="Backlog" children={<TaskList title="Backlog" columnId="Backlog" projectId={null}/>} />
                 <ListColumn id="Projects" children={<ProjectColumn />} />

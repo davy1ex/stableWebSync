@@ -46,7 +46,8 @@ export const RewardComponent = ({ reward }: { reward: RewardModel } ) => {
         if (totalPoints >= reward.rewardPoints) {
             addToast({
                 message: `🎉 You can claim "${reward.rewardName}"`,
-                type: "info",
+                type: "success",
+                image: "https://media1.giphy.com/media/BK1EfIsdkKZMY/giphy.gif?cid=6c09b9529xrqzwej36k1d0j3zage94pl77izs0y17bvlm6ad&ep=v1_gifs_search&rid=giphy.gif&ct=g",
                 timeExpired: 10000
             });
         }

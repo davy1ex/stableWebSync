@@ -1,4 +1,4 @@
-import { TaskModel } from "../../task/model/TaskModel"
+import { TaskModel } from "@/entities/task/model/TaskModel"
 
 export type ProjectModel = {
     projectId: number

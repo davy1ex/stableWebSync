@@ -10,7 +10,9 @@ type ToastItemProps = {
 export const ToastItem = ({ toast, onClick}: ToastItemProps) => {
     const [progress, setProgress] = useState(100);
     const handleToastClick = () => {
-        onClick()
+        if (toast.type !== "info") {
+            onClick()
+        }
     }
 
     const handleUndoClick = (e: React.MouseEvent) => {
@@ -40,6 +42,7 @@ export const ToastItem = ({ toast, onClick}: ToastItemProps) => {
         <div className={`toast-item toast-${toast.type}`} onClick={handleToastClick}>
             <div className="toast-message">
                 {toast.message} 
+                {toast.image && <img src={toast.image} alt="toast-image" />}
                 { toast.undoAction && (
                     <button onClick={(e) => handleUndoClick(e)} onMouseDown={(e) => e.stopPropagation()}>Undo</button>
                 )}
@@ -48,3 +51,4 @@ export const ToastItem = ({ toast, onClick}: ToastItemProps) => {
         </div>
     );
 };
+

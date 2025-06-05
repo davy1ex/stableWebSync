@@ -7,6 +7,7 @@ export type Toast = {
     message: string;
     type?: "success" | "error" | "info";
     timeExpired?: number;
+    image?: string;
     undoAction?: () => void;
 };
 

@@ -81,8 +81,8 @@ export const ProjectModal = ({ projectId, isOpen, onClose }: ProjectModalProps) 
 
     updateProject(updatedProject);
     addToast({
-        message: `Deleted: ${todo}`,
-        type: "success",
+        message: `U deleted: ${todo}. U can undo it by`,
+        type: "info",
         undoAction: () => {
             if (!updatedRoughPlan.some(p => p.todo === todo)) {
                 updateProject({

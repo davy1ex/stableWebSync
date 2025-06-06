@@ -21,12 +21,17 @@ module.exports = {
         rules: [
             {
                 test: /\.(ts|tsx)$/,
-                use: 'ts-loader',
-                exclude: /node_modules/,
+                use: {
+                    loader: 'ts-loader',
+                    options: {
+                        transpileOnly: true,
+                    }
+                },
+                exclude: [/node_modules/, /\.test\.(ts|tsx)$/],
             },
             {
                 test: /\\.(ts|js)x?$/,
-                exclude: /node_modules/,
+                exclude: [/node_modules/, /\.test\.(ts|tsx)$/],
                 use: {
                     loader: "babel-loader",
                     options: {
@@ -58,7 +63,6 @@ module.exports = {
         hot: true,
         historyApiFallback: true,
         port: 3000,
-        open: true
     },
     mode: "development"
 };

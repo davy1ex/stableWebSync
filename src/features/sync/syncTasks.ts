@@ -1,5 +1,9 @@
 import { TaskModel } from "@/entities/task";
-import { addTaskToFirebase, fetchTasks } from "@/entities/task/api/firebaseApi";
+import {
+  fetchTasks,
+  syncTasksToFirebase,
+} from "@/entities/task/api/firebaseApi";
+import { useSyncStore } from "./model/store";
 
 export const syncFromFirebase = async (
   updateTasks: (tasks: TaskModel[]) => void
@@ -13,7 +17,16 @@ export const syncFromFirebase = async (
 };
 
 export const syncToFirebase = async (tasks: TaskModel[]) => {
-  for (const task of tasks) {
-    await addTaskToFirebase(task);
+  if (useSyncStore.getState().isSyncingFromFirebase) {
+    return;
+  }
+
+  try {
+    useSyncStore.getState().setIsSyncingFromFirebase(true);
+    await syncTasksToFirebase(tasks);
+  } catch (e) {
+    console.error("Ошибка синхронизации с Firebase:", e);
+  } finally {
+    useSyncStore.getState().setIsSyncingFromFirebase(false);
   }
 };

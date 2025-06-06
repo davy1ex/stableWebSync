@@ -1,27 +1,25 @@
 import React from 'react';
 import { useTaskStore } from '@/entities/task';
 import './SyncStatusDisplay.css';
+import { useSyncStore } from '@/features/sync';
 
 export const SyncStatusDisplay: React.FC = () => {
-    // const isOnline = useTaskStore((state) => state.isOnline);
-    // const pendingSync = useTaskStore((state) => state.pendingSync);
+    const isSyncingFromFirebase = useSyncStore((state) => state.isSyncingFromFirebase);
 
-    // let statusText = 'Synced';
-    // let statusClass = ".synced;"
+    let statusText = 'Synced';
+    let statusClass = ".synced;"
 
-    // if (!isOnline) {
-    //     statusText = '⚠️ Offline';
-    //     statusClass = ".offline;"
-    // } else if (pendingSync) {
-    //     statusText = 'Saving...';
-    //     statusClass = ".saving";
-    // }
+    if (isSyncingFromFirebase) {
+        statusText = 'Saving...';
+        statusClass = ".saving";
+    } else {
+        statusText = 'Synced';
+        statusClass = ".synced;"
+    }
 
     return (
-        <></>
-    )
-    //     <div className={`.syncStatus ${statusClass}`}>
-    //         {statusText}
-    //     </div>
-    // );
+        <div className={`.syncStatus ${statusClass}`}>
+            {statusText}
+        </div>
+    );
 }; 

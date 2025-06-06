@@ -9,8 +9,8 @@ const HAS_SYNCED_KEY = "hasSyncedThisSession";
 
 export const useInitSync = (user: any, username: string | null) => {
   const updateTasks = useTaskStore((state) => state.updateTasks);
-  const updateTaskInStoreIfNewer = useTaskStore((state) => state.updateTaskInStoreIfNewer);
-  const removeTaskFromStore = useTaskStore((state) => state.removeTaskFromStore);
+  // const updateTaskInStoreIfNewer = useTaskStore((state) => state.updateTaskInStoreIfNewer);
+  // const removeTaskFromStore = useTaskStore((state) => state.removeTaskFromStore);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const hasStartedSync = useRef(false);
 
@@ -34,16 +34,16 @@ export const useInitSync = (user: any, username: string | null) => {
   useEffect(() => {
     if (!user) return;
   
-    const unsubscribe = subscribeToTasks(
-      (task) => {
-        // Сравнивать task.updatedAt с локальным — если новее, обновить локальный стор
-        updateTaskInStoreIfNewer(task[0]);
-      },
-      (taskId) => {
-        // Удалить задачу из локального стора
-        removeTaskFromStore(taskId);
-      }
-    );
+    // const unsubscribe = subscribeToTasks(
+    //   (task) => {
+    //     // Сравнивать task.updatedAt с локальным — если новее, обновить локальный стор
+    //     updateTaskInStoreIfNewer(task[0]);
+    //   },
+    //   (taskId) => {
+    //     // Удалить задачу из локального стора
+    //     removeTaskFromStore(taskId);
+    //   }
+    // );
   
     return () => unsubscribe();
   }, [user]);

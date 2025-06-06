@@ -3,15 +3,15 @@ import { syncToFirebase } from "./syncTasks";
 import { TaskModel } from "@/entities/task";
 import isEqual from "lodash.isequal";
 
-import { isSyncingFromFirebase } from "@/entities/task/model/store";
+import { useSyncStore } from "./model/store";
 
 let lastSyncedTasks: TaskModel[] = [];
 
 export const startSyncListener = () => {
-  useTaskStore.subscribe((currentTasks) => {
-    const tasks = currentTasks.tasks;
+  const unsubscribe = useTaskStore.subscribe((state) => {
+    const tasks = state.tasks;
 
-    if (isSyncingFromFirebase) {
+    if (useSyncStore.getState().isSyncingFromFirebase) {
       return;
     }
 
@@ -19,8 +19,9 @@ export const startSyncListener = () => {
 
     if (!isEqual(tasks, lastSyncedTasks)) {
       lastSyncedTasks = tasks;
-
       syncToFirebase(tasks).catch(console.error);
     }
   });
+
+  return unsubscribe;
 };

@@ -5,6 +5,7 @@ import { RewardModel } from "../model/RewardModel"
 import { useRewardStore } from "../model/store"
 import { usePointsStore } from '@/entities/Points'
 import './RewardComponent.css'
+import { useToastStore } from '@/features/showToast'
 
 export const RewardComponent = ({ reward }: { reward: RewardModel } ) => {
     const deleteReward = useRewardStore(state => state.deleteReward)
@@ -17,7 +18,8 @@ export const RewardComponent = ({ reward }: { reward: RewardModel } ) => {
     const pointsEditRef = useRef<HTMLDivElement>(null)
     const claimReward = useRewardStore(state => state.claimReward)
     const totalPoints = usePointsStore(state => state.totalPoints)
-        
+    const addToast = useToastStore(state => state.addToast)
+
     const {
         attributes,
         listeners,
@@ -39,6 +41,17 @@ export const RewardComponent = ({ reward }: { reward: RewardModel } ) => {
         setIsPointsEditing(false)
         updateReward({...reward, rewardName: rewardName, rewardPoints: rewardPoints})
     }
+
+    useEffect(() => {
+        if (totalPoints >= reward.rewardPoints) {
+            addToast({
+                message: `🎉 You can claim "${reward.rewardName}"`,
+                type: "success",
+                image: "https://media1.giphy.com/media/BK1EfIsdkKZMY/giphy.gif?cid=6c09b9529xrqzwej36k1d0j3zage94pl77izs0y17bvlm6ad&ep=v1_gifs_search&rid=giphy.gif&ct=g",
+                timeExpired: 10000
+            });
+        }
+    }, [totalPoints, reward.rewardPoints, reward.rewardName, addToast]);
 
     useEffect(() => {
         // function handleClickOutside(event: MouseEvent) { // TODO: delete it or refactor
@@ -131,11 +144,14 @@ export const RewardComponent = ({ reward }: { reward: RewardModel } ) => {
             </div>
             
             {totalPoints >= reward.rewardPoints && (
-                <div className={`claimReward ${totalPoints >= reward.rewardPoints ? "canClaimReward" : ""}`} onClick={() => {
-                    claimReward(reward.rewardId)
-                }}>
-                    Claim
-                </div>
+                <>
+                    <div className={`claimReward ${totalPoints >= reward.rewardPoints ? "canClaimReward" : ""}`} onClick={() => {
+                        claimReward(reward.rewardId)
+                    }}>
+                        Claim
+                    </div>
+                </>
+                
             )}
         </div>
     )

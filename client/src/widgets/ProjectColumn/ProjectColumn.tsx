@@ -3,7 +3,7 @@ import {DndContext, DragEndEvent} from "@dnd-kit/core"
 import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable" // TODO make common component for this dragging
 import { ProjectCard, ProjectModel, useProjectStore } from "@/entities/project"
 import { AddProject } from "@/features/addProject"
-import { ProjectModal } from "../ProjectModal/ui/ProjectModal"
+import { ProjectModal } from "../ProjectModal/ui/Modal/ProjectModal"
 import "./ProjectColumn.css"
 
 const statuses = ["notStarted", "active", "waiting", "completed"] // todo make separated as consts

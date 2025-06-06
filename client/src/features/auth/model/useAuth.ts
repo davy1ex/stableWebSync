@@ -1,38 +1,81 @@
-import { useState } from "react";
-import { api } from "@/shared/api"
+import { useEffect, useState } from "react";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut,
+  User,
+} from "firebase/auth";
+import { app } from "@/shared/lib/firebase";
 
-const API_URL = "http://localhost:3001";
+const auth = getAuth(app);
+
+function usernameToEmail(username: string) {
+  return `${username}@app.local`;
+}
 
 export function useAuth() {
-    const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'));
-    const [username, setUsername] = useState<string | null>(() => localStorage.getItem('username'));
-    const [error, setError] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(auth.currentUser);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-    async function login(username: string) {
-        setError(null);
-        const response = await api.post('/login', { username });
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      localStorage.setItem("user", JSON.stringify(user));
+      setLoading(false);
+    });
+    return () => unsub();
+  }, []);
 
-        if (!response.data) {
-            setError('Authorization error');
-            return false;
+  async function login(email: string, password: string) {
+    try {
+      setError(null);
+      const res = await signInWithEmailAndPassword(auth, email, password);
+      setUser(res.user);
+      localStorage.setItem("user", JSON.stringify(res.user));
+      return true;
+    } catch (err: any) {
+      if (err.code === "auth/user-not-found") {
+        try {
+          const res = await createUserWithEmailAndPassword(
+            auth,
+            email,
+            password
+          );
+          setUser(res.user);
+          localStorage.setItem("user", JSON.stringify(res.user));
+          return true;
+        } catch (createErr: any) {
+          setError("Failed to create user");
+          return false;
         }
+      }
 
-        const data = response.data;
-        setToken(data.token);
-        setUsername(username);
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('username', username);
-        window.location.reload();
-        return true;
+      setError("Login failed");
+      return false;
     }
+  }
 
-    function logout() {
-        setToken(null);
-        setUsername(null);
-        localStorage.removeItem('token');
-        localStorage.removeItem('username');
-        window.location.reload();
-    }
+  async function logout() {
+    await signOut(auth);
+    setUser(null);
+    localStorage.removeItem("user");
+    window.location.reload();
+  }
 
-    return { token, username, login, logout, error };
-} 
+  const username = user?.email?.split("@")[0] ?? null;
+  const token = user?.getIdToken() ?? null;
+
+  return {
+    user,
+    uid: user?.uid ?? null,
+    login,
+    logout,
+    error,
+    loading,
+    username,
+    token,
+  };
+}

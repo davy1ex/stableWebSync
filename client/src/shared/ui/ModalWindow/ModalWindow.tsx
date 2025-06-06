@@ -44,6 +44,7 @@ export const ModalWindow = ({ children, isOpen, onClose, width="400px", height="
     }
 
     return (
+        isOpen && (
         <div 
             ref={modalRef}
             className={`modalWindow ${isOpen ? "open" : ""}`} 
@@ -62,5 +63,6 @@ export const ModalWindow = ({ children, isOpen, onClose, width="400px", height="
                 {children}
             </div>
         </div>
+        )
     )
 }

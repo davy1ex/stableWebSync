@@ -12,12 +12,20 @@ export const Header = ({username, logout, totalPoints}: HeaderProps) => {
     const navigate = useNavigate();
     const withoutServerSync = useSettingsStore((state) => state.getWithoutServerSync());
     const setWithoutServerSync = useSettingsStore((state) => state.setWithoutServerSync);
+
+    const handleClickServerSync = () => {
+        if (withoutServerSync) {
+            setWithoutServerSync(false)
+        } else {
+            setWithoutServerSync(true)
+        }
+    }
     
     if (!username && !withoutServerSync) {
         return (
             <header style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 8, background: '#f5f5f5'}}>
                 <span>Welcome, offline user</span>
-                <button onClick={() => { withoutServerSync ? setWithoutServerSync(false) : setWithoutServerSync(true) }}>
+                <button onClick={handleClickServerSync}>
                     {withoutServerSync ? "Enable server sync" : "Try offline mode"}
                 </button>
             </header>

@@ -1,3 +1,6 @@
+App with gamification - Improve your life by playing Life!
+![Untitled23](https://github.com/user-attachments/assets/c56ccfe8-9b61-4af3-8b52-251be7d8aabb)
+
 ## Quick Start
 
 ### 1. Clone the repository

@@ -1,15 +1,31 @@
 .listColumnContainer {
-    border: 1px solid black;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     width: fit-content;
-
+    background-color: var(--background-primary);
+    margin: 10px;
+    border-radius: 5px;
 }
 
 .listColumnTitle {
     font-size: 1.2rem;
     font-weight: bold;
     text-align: center;
+    
     padding: 10px;
-    border-bottom: 1px solid black;
-    background-color: #f0f0f0;
+    gap: 10px;
+    
+    border-bottom: 1px solid var(--primary);
+    background-color: var(--background-primary);
+    color: var(--text-accent);
     border-radius: 5px 5px 0 0;
+}
+
+.taskListContainer {
+    height: 100%;
+    padding: 10px 5px;
+    margin-top: 5px;
+    background-color: var(--background-accent);
+    border-radius: 5px;
 }

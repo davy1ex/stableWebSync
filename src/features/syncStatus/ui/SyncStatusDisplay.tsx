@@ -10,15 +10,15 @@ export const SyncStatusDisplay: React.FC = () => {
     let statusClass = ".synced;"
 
     if (isSyncingFromFirebase) {
-        statusText = 'Saving...';
+        statusText = 'Saving... 🔃';
         statusClass = ".saving";
     } else {
-        statusText = 'Synced';
+        statusText = 'Synced ✅';
         statusClass = ".synced;"
     }
 
     return (
-        <div className={`.syncStatus ${statusClass}`}>
+        <div className={`syncStatus ${statusClass}`}>
             {statusText}
         </div>
     );

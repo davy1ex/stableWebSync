@@ -42,7 +42,7 @@ export const TaskList = ({ title, columnId, projectId, showTitle=false, showAddT
                             <TaskComponent key={task.taskId} task={task}/>
                         ))
                     )
-                    : "no tasks"
+                    : <div className="taskListEmpty">no tasks</div>
             }
             </div>
         </div>

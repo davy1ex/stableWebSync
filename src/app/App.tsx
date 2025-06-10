@@ -16,6 +16,8 @@ import { ModalWindow } from "@/shared/ui/ModalWindow";
 import { syncFromFirebase } from "@/features/sync/syncTasks";
 import { startSyncListener } from "@/features/sync";
 import { useInitSync } from "@/features/sync/initSync";
+import { useThemeStore } from "@/features/theme/store";
+import "./styles.css"
 
 export const App = () => {
     const { user, logout, username, token } = useAuth();
@@ -26,8 +28,18 @@ export const App = () => {
     console.log("APP totalPoints", totalPoints)
     const withoutServerSync = useSettingsStore((state) => state.getWithoutServerSync());
 
-    const modal = useInitSync(user, username);
+    const { mode, setMode, setAccent } = useThemeStore();
+    const toggleTheme = () => {
+        const newMode = mode === 'light' ? 'dark' : 'light';
+        setMode(newMode);
+        document.body.setAttribute('data-theme', newMode);
+    };
+    // const changeAccent = (color: 'red' | 'blue' | 'yellow') => { // todo: add in next release switching accent
+    //     setAccent(color);
+    //     document.body.setAttribute('data-accent', color);
+    // };
 
+    const modal = useInitSync(user, username);
 
     useEffect(() => {                  
         // if (withoutServerSync) {
@@ -57,12 +69,11 @@ export const App = () => {
     if (!user && !withoutServerSync) return <AuthPage />;
 
     return (
-        <>
-            <Header username={username} logout={logout} totalPoints={totalPoints} />
+        <div className="appContainer" style={{ backgroundColor: 'var(--background)', color: 'var(--text)'}} data-theme={mode}>
+            <Header toggleTheme={toggleTheme} username={username} logout={logout} totalPoints={totalPoints} />
             <Outlet />
             <ToastContainer />
-            
             {modal}
-        </>
+        </div>
     )
 };

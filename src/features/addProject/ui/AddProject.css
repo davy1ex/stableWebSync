@@ -1,14 +1,30 @@
+.addProjectContainer {
+    width: fit-content;
+    border-radius: 5px;
+    border: 1px solid var(--primary);
+}
+
+.addProjectContainer form,
+.addProjectInput {
+    border-radius: 5px;
+}
+
 .addProjectInput {
     width: 90%;
     height: 30px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 0 10px;
+    padding: 10px;
+    border: none;
+    color: var(--primary) !important;
 }
 
+
+
 .addProjectButton {
-    width: 10%;
+    /* width: 10%; */
+    color: var(--primary);
     max-width: 30px;
+    border: none;
+    outline: none;
     padding: 0;
     margin: 0;
 }

@@ -2,20 +2,35 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    align-items: center;
+    align-items: stretch;
+    border: 1px solid var(--primary);
+    border-radius: 5px;
 }
 
 .taskInput {
     width: 90%;
     height: 30px;
-    border: 1px solid #ccc;
+    box-sizing:content-box;
+    /* border: 1px solid #ccc; */
     border-radius: 5px;
-    padding: 0 10px;
+    padding: 10px;
+    background-color: var(--background-primary);
+    color: var(--primary);
+    border: none;
 }
+.taskInput:focus {
+    /* border: 1px solid var(--primary); */
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.6);
+    outline: none;
+}
+
 .taskInputButton {
+    box-sizing:content-box;
     width: 10%;
     height: 30px;
-    border: 1px solid #ccc;
+    padding: 10px;
+    border: none;
     border-radius: 5px;
-    padding: 0 10px;
+    color: var(--primary);
+    font-size: 1.5em;
 }

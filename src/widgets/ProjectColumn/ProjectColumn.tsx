@@ -40,6 +40,9 @@ export const ProjectColumn = () => {
     return (
         <>
             <div className="projectColumn">
+                <div className="addProjectContainer">
+                    <AddProject />
+                </div>
                 <div className="projectColumnStatusSelect">
                     {statuses.map((status) => (
                         <div 
@@ -55,9 +58,7 @@ export const ProjectColumn = () => {
                         items={filteredProjects.map(project => project.projectId.toString())}
                         strategy={verticalListSortingStrategy}
                     >
-                        <div className="addProjectContainer">
-                            <AddProject />
-                        </div>
+                        
                         {filteredProjects.map((project) => (
                             <div className="projectCardContainer" key={project.projectId} onClick={() => {
                                 setProject(project)

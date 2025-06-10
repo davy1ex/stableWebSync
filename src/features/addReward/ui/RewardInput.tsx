@@ -21,14 +21,11 @@ export const RewardInput = () => {
     }
 
     return (
-        <div className="rewardInput">
-            <form onSubmit={handleSubmit}>
-                <div className="rewardInputContainer">
+        
+            <form className="rewardInput" onSubmit={handleSubmit}>
                     <input type="text" className="rewardInputName" placeholder="Reward Name" value={rewardName} onChange={(e) => setRewardName(e.target.value)} />
-                    <input type="number" className="rewardInputPoints" placeholder="Points" value={rewardPoints} onChange={(e) => setRewardPoints(parseInt(e.target.value))} />
-                </div>
-                <button type="submit">Add Reward</button>
+                    <input type="text" className="rewardInputPoints" placeholder="Points" value={rewardPoints} onChange={(e) => setRewardPoints(parseInt(e.target.value))} />
+                    <button type="submit">+</button>
             </form>
-        </div>
     )
 }

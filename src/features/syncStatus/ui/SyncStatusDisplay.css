@@ -1,21 +1,6 @@
 .syncStatus {
-    padding: 5px 10px;
-    border-radius: 4px;
     font-size: 0.9em;
-    color: white;
-    min-width: 80px; /* Ensure a minimum width */
+    color: var(--color);
+    background-color: var(--background-accent);
     text-align: center;
 }
-
-.synced {
-    background-color: #4CAF50; /* Green */
-}
-
-.saving {
-    background-color: #FFC107; /* Amber */
-    color: #333; /* Darker text for better contrast on amber */
-}
-
-.offline {
-    background-color: #757575; /* Grey */
-} 

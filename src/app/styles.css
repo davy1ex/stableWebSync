@@ -1,0 +1,37 @@
+* {
+    padding: 0;
+    margin: 0;
+
+    background-color: var(--background-primary);
+
+}
+:root {
+  --background-primary: #ffffff;
+  --text: #000000;
+  --primary: #ff3b30;
+}
+
+.appContainer {
+    height: 100vh;
+}
+
+[data-theme='dark'] {
+  --background-primary: #121212;
+  --background-accent: #481e14;
+  --text: #ffffff;
+  --text-accent: #ff2727;
+  --primary: #ff3b30;
+}
+
+[data-accent='blue'] {
+  --primary: #007aff;
+}
+
+[data-accent='yellow'] {
+  --primary: #ffcc00;
+}
+
+.appContainer {
+    display: flex;
+    flex-direction: row;
+}

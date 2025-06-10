@@ -1,0 +1,22 @@
+.projectCard {
+    display: flex;
+    width: 350px;
+    border: 1px solid var(--primary);
+    padding: 10px;
+    margin: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+}
+
+
+.projectCardContent {
+    width: 100%;
+}
+
+.projectCardContentHeader {
+    display: flex;
+}
+
+.projectName {
+    margin-right: auto;
+}

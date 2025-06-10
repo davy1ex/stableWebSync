@@ -1,0 +1,6 @@
+.syncStatus {
+    font-size: 0.9em;
+    color: var(--color);
+    background-color: var(--background-accent);
+    text-align: center;
+}

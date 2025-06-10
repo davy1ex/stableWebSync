@@ -1,0 +1,96 @@
+.taskList, .taskContainer, .taskContent {
+    border-radius: 10px;
+    color: var(--text);
+}
+
+.taskList {
+    background-color: var(--background-accent);
+}
+
+.taskContent input {
+    border-radius: 10px;
+    box-sizing: content-box;
+    height: 100%;
+    color: var(--text);
+}
+
+.taskContainer {
+    display: flex;
+    min-width: 100%;
+    min-height: 50px;
+    width: 400px;
+    flex-direction: row;
+    
+    background-color: transparent;
+    justify-content: space-between;
+    border-radius: 10px;
+    cursor: default;
+    margin: 10px 0;
+}
+
+.taskContainer:nth-child(odd) {
+    border-radius: 10px;
+
+}
+
+.taskContent {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2px;
+    cursor: default;
+    border-radius: 10px;
+    border: 1px solid var(--primary);
+}
+
+.dragHandle {
+    display: flex;
+    align-items: center;
+    padding: 0 4px;
+    cursor: grab;
+    color: #999;
+    user-select: none;
+}
+
+.taskCheckbox {
+    margin: 0 8px;
+    cursor: pointer;
+}
+
+.taskName {
+    flex: 1;
+    cursor: grab;
+    user-select: none;
+    margin-right: auto;
+}
+
+.taskAdditional {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.taskProjectBadge {
+    display: flex;
+    justify-content: flex-end;
+    align-self: flex-end;
+    align-items: center;
+    
+    cursor: grab;
+    background-color: var(--background-accent);
+    /* width: fit-content; */
+    font-size: 0.8rem;
+    padding: 5px;
+    margin: 5px;
+    border-radius: 5px;
+}
+
+.taskAdditionalLeft {
+    display: flex;
+    flex-direction: column;
+    margin: 5px 0;
+    align-items: end;
+}

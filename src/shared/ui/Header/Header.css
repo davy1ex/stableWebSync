@@ -1,0 +1,36 @@
+header {
+    display: flex; 
+    flex-direction: column;
+    justify-content: space-between; 
+    align-items: flex-start;
+    background-color: var(--background-primary);
+    color: var(--color);
+    padding: 8px 0;
+}
+
+header button {
+    color: var(--color);
+    cursor: pointer;
+}
+
+header button {
+    border: var(--background-accent);
+    outline: none;
+}
+
+.headerItem {
+    background-color: var(--background-accent);
+    padding: 10px;
+    margin: 0;
+    align-items: start;
+    border-radius: 0 5px 5px 0;
+    cursor: pointer;
+}
+
+.headerItemVertical {
+    writing-mode: vertical-rl;
+}
+
+header .active {
+    padding: 30px;
+}

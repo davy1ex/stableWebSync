@@ -1,0 +1,38 @@
+.rewardInput {
+    margin-bottom: 10px;
+    background-color: var(--background-primary);
+    border: 1px solid var(--primary);
+    border-radius: 5px;
+    width: fit-content;
+}
+
+.rewardInputContainer {
+    background-color: transparent;
+    border-radius: 5px;
+
+}
+
+.rewardInputName {
+    margin-right: 10px;
+    border-radius: 5px;
+}
+.rewardInputName:active {
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+
+.rewardInput button , 
+.rewardInput input {
+    padding: 10px;
+    height: 30px;
+    box-sizing: content-box;
+    border: none;
+    border-radius: 5px;
+    outline: none;
+    color: var(--primary);
+}
+
+.rewardInputPoints {
+    width: 10px;
+}

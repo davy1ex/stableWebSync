@@ -1,0 +1,13 @@
+.taskListContainer {
+    min-width: 300px;
+}
+
+.taskList {
+    margin-top: 10px;
+}
+
+.taskListEmpty {
+    text-align: center;
+    background-color: var(--background-accent);
+
+}

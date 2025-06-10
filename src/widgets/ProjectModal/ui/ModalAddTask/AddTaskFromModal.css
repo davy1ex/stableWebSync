@@ -1,0 +1,6 @@
+.selectTask {
+    padding: 5px;
+}
+.selectTask:nth-child(odd) {
+    background-color: var(--background-primary)
+}

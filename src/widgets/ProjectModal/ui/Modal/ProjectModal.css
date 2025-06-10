@@ -1,0 +1,89 @@
+.projectModalContent {
+    width: 100%;
+    height: 100%;
+    background-color: var(--background-accent) !important;
+    color: var(--color)
+}
+
+h1, 
+h2,
+.projectModalContent .projectStatus,
+.projectModalContent .progressBarContainer,
+.projectRoughPlan,
+.projectModalContent .progressBarText,
+.projectModalContent .projectPoints,
+.projectRoughPlan form,
+.roughPlanItem,
+.projectModalContent .deleteButton,
+.projectModalContent .selectTasks,
+.projectModalContent form,
+p {
+    background-color: var(--background-accent);
+    color: var(--color);
+}
+.projectModalContent .taskListContainer {
+    margin-top: 0px;
+}
+.projectRoughPlan form {
+    width: fit-content;
+    border: 1px solid var(--primary);
+
+}
+.projectRoughPlan form input, 
+.projectModalContent .selectTasks input,
+.projectRoughPlan button {
+    background-color: var(--background-accent);
+    outline: none;
+    border: none;
+    color: var(--color);
+    padding: 10px;
+}
+
+.projectModalName {
+    width: fit-content;
+    margin-right: auto;
+    display: flex;
+    
+    cursor: pointer;
+    height: 60px;
+}
+
+.projectDescription {
+    width: fit-content;
+    margin-right: auto;
+    display: flex;
+}
+
+.projectStatus {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.projectStatus select,
+.projectModalContent input,
+.projectModalName button {
+    background-color: var(--background-accent);
+    border: 1px solid var(--primary);
+    color: var(--color);
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.projectRoughPlan, .projectTasks {
+    border: 1px solid var(--primary);
+    background-color: var(--background-accent);
+    border-radius: 5px;
+    margin-bottom: 10px;
+    max-height: 300px;
+    overflow-y: scroll;
+}
+.roughPlanItem {
+    display: flex;
+}
+
+.projectModalContent .selectTasks input {
+    border: 1px solid var(--primary);
+}
+

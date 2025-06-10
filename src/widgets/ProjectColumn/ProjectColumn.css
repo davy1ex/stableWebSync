@@ -1,0 +1,59 @@
+.projectColumn {
+    height: 100%;
+    padding: 10px 5px;
+    border-radius: 5px;
+    background-color: var(--background-accent);
+    color: var(--color);
+}
+
+.projectColumn input {
+    color: var(--color);
+}
+
+.projectCardContainer {
+    background-color: transparent;
+    cursor: pointer;
+    width: fit-content;
+}
+
+.projectCardContentHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.projectStatusBar {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.addProjectContainer {
+    width: 100%;
+}
+
+.projectStatus {
+    width: fit-content;
+    border-radius: 5px;
+    padding: 5px;
+    background-color: var(--background-accent);
+}
+
+.projectColumnStatusSelect {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 10px;
+    margin: 10px 5px;
+}
+
+.projectColumnStatusItem {
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 10px;
+}
+
+.projectColumnStatusItem.active {
+    background-color: var(--primary);
+    border-radius: 10px;
+}

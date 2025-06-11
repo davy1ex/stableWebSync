@@ -1,6 +1,6 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/features/auth";
-import { Header } from "@/shared/ui/Header";
+import { Header } from "@/widgets/Header";
 import { ROUTES } from "@/shared/const/ROUTES";
 import { AuthPage } from "@/pages/AuthPage/AuthPage";
 import { useEffect, useState } from "react";

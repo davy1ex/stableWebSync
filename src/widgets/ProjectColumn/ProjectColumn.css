@@ -2,7 +2,10 @@
     height: 100%;
     padding: 10px 5px;
     border-radius: 5px;
-    background-color: var(--background-accent);
+    background: linear-gradient(
+        var(--background-accent),
+        #000
+    );
     color: var(--color);
 }
 

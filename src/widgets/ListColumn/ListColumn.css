@@ -26,6 +26,10 @@
     height: 100%;
     padding: 10px 5px;
     margin-top: 5px;
-    background-color: var(--background-accent);
+    background: linear-gradient(
+        var(--background-accent), 
+        #000000
+    );
+    overflow-y: scroll;
     border-radius: 5px;
 }

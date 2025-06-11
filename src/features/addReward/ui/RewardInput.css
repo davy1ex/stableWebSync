@@ -3,7 +3,7 @@
     background-color: var(--background-primary);
     border: 1px solid var(--primary);
     border-radius: 5px;
-    width: fit-content;
+    width: 100%;
 }
 
 .rewardInputContainer {

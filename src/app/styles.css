@@ -23,6 +23,14 @@
   --primary: #ff3b30;
 }
 
+[data-theme='light'] {
+  --background-primary: #c3c3c3;
+  --background-accent: #481e14;
+  --text: black;
+  --text-accent: #ff2727;
+  --primary: #ff3b30;
+}
+
 [data-accent='blue'] {
   --primary: #007aff;
 }
@@ -34,4 +42,8 @@
 .appContainer {
     display: flex;
     flex-direction: row;
+}
+
+input {
+    accent-color: var(--background-accent)
 }

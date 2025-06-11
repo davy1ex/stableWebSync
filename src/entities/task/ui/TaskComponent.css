@@ -4,7 +4,7 @@
 }
 
 .taskList {
-    background-color: var(--background-accent);
+    background-color: transparent;
 }
 
 .taskContent input {

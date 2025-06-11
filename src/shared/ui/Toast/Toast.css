@@ -4,16 +4,22 @@
     right: 1rem;
     z-index: 9999;
     display: flex;
+    background-color: var(--background-primary);
+    border-radius: 5px;
     flex-direction: column;
     gap: 0.5rem;
 }
 
 .toast-item {
-    background-color: #333;
-    color: white;
-    padding: 1rem;
-    border-radius: 6px;
+    background-color: transparent;
+    color: var(--color);
+    padding: 10px;
+    box-sizing: border-box;
     width: 250px;
+    height: 100%;
+    border: 1px solid var(--primary);
+    border-radius: 5px;
+
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     position: relative;
     overflow: hidden;
@@ -23,19 +29,19 @@
     position: absolute;
     bottom: 0;
     left: 0;
-    height: 10px;
-    background-color: #e4ffa5;
+    height: 3px;
+    background-color: var(--primary);
     transition: width 0.1s linear;
 }
-
+/* 
 .toast-success {
-    background-color: #4caf50;
-}
+    background-color: var(--primary);
+}   todo: make differents styles for each type of toast */
 
-.toast-error {
+/* .toast-error {
     background-color: #f44336;
 }
 
 .toast-info {
     background-color: #2196f3;
-}
+} */

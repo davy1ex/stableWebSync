@@ -6,6 +6,7 @@ import { TaskList } from "@/widgets/TaskList"
 import { useTaskStore } from "@/entities/task"
 import { AddTaskFromModal } from "../ModalAddTask/AddTaskFromModal"
 import { useToastStore } from "@/features/showToast"
+import { useCompleteProject } from "@/features/completeProject"
 import "./ProjectModal.css"
 
 type ProjectModalProps = {
@@ -33,7 +34,7 @@ export const ProjectModal = ({ projectId, isOpen, onClose }: ProjectModalProps) 
 
     const toggleRoughPlanItem = useProjectStore(state => state.toggleRoughPlanItem)
 
-    const completeProject = useProjectStore(state => state.completeProject)
+    const completeProject = useCompleteProject()
     const addToast = useToastStore((state) => state.addToast)
     
     const handleAddRoughPlan = (e: React.FormEvent<HTMLFormElement>) => {

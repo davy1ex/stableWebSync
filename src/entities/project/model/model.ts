@@ -5,7 +5,7 @@ export type ProjectModel = {
     projectName: string
     projectDescription: string
     updatedAt: string
-    tasks: TaskModel[]
+    tasks: number[]
     roughPlan: {
         todo: string
         isCompleted: boolean

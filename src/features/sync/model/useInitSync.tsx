@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useTaskStore } from "@/entities/task";
-import { syncFromFirebase } from "./syncTasks";
+import { syncFromFirebase } from "../api/syncTasks";
 import { startSyncListener } from "./syncListener";
-import { ModalWindow } from "@/shared/ui/ModalWindow";
 import { subscribeToTasks } from "@/entities/task/api/firebaseApi";
+import { ModalSyncOnFirstStart } from "../ui/ModalSyncOnFirstStart";
 
 const HAS_SYNCED_KEY = "hasSyncedThisSession";
 
@@ -40,31 +40,41 @@ export const useInitSync = (user: any, username: string | null) => {
     //     updateTaskInStoreIfNewer(task[0]);
     //   },
     //   (taskId) => {
-    //     // Удалить задачу из локального стора
     //     removeTaskFromStore(taskId);
     //   }
     // );
   
-    return () => unsubscribe();
+    // return () => unsubscribe();
   }, [user]);
+
+  const handleSync = async () => {
+    await syncFromFirebase(updateTasks);
+    localStorage.setItem(HAS_SYNCED_KEY, "true");
+  };
   
 
   return (
-    <ModalWindow isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-      <div>
-        <h1>Hi {username}</h1>
-        <p>You have some tasks in local storage. Do you want to sync them with the server?</p>
-        <button
-          onClick={() => {
-            syncFromFirebase(updateTasks);
-            setIsModalOpen(false);
-            localStorage.setItem(HAS_SYNCED_KEY, "true");
-          }}
-        >
-          Sync
-        </button>
-        <button onClick={() => setIsModalOpen(false)}>Cancel</button>
-      </div>
-    </ModalWindow>
+    <ModalSyncOnFirstStart
+      username={username}
+      onSync={handleSync}
+      isModalOpen={isModalOpen}
+      setIsModalOpen={setIsModalOpen}
+    />
+    // <ModalWindow isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+    //   <div>
+    //     <h1>Hi {username}</h1>
+    //     <p>You have some tasks in local storage. Do you want to sync them with the server?</p>
+    //     <button
+    //       onClick={() => {
+    //         syncFromFirebase(updateTasks);
+    //         setIsModalOpen(false);
+    //         localStorage.setItem(HAS_SYNCED_KEY, "true");
+    //       }}
+    //     >
+    //       Sync
+    //     </button>
+    //     <button onClick={() => setIsModalOpen(false)}>Cancel</button>
+    //   </div>
+    // </ModalWindow>
   );
 };

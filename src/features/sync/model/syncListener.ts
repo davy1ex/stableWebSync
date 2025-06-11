@@ -1,9 +1,9 @@
 import { useTaskStore } from "@/entities/task";
-import { syncToFirebase } from "./syncTasks";
+import { syncToFirebase } from "../api/syncTasks";
 import { TaskModel } from "@/entities/task";
 import isEqual from "lodash.isequal";
 
-import { useSyncStore } from "./model/store";
+import { useSyncStore } from "./store";
 
 let lastSyncedTasks: TaskModel[] = [];
 

@@ -3,7 +3,7 @@ import {
   fetchTasks,
   syncTasksToFirebase,
 } from "@/entities/task/api/firebaseApi";
-import { useSyncStore } from "./model/store";
+import { useSyncStore } from "../model/store";
 
 export const syncFromFirebase = async (
   updateTasks: (tasks: TaskModel[]) => void

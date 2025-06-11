@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { SyncStatusDisplay } from "@/features/syncStatus";
 import { useSettingsStore } from "@/entities/settings";
 import { handleFileUpload } from "@/shared/lib/download";
@@ -15,6 +15,7 @@ type HeaderProps = {
 
 export const Header = ({username, logout, toggleTheme, totalPoints}: HeaderProps) => {
     const navigate = useNavigate();
+    const location = useLocation()
     const withoutServerSync = useSettingsStore((state) => state.getWithoutServerSync());
     const setWithoutServerSync = useSettingsStore((state) => state.setWithoutServerSync);
 
@@ -42,7 +43,7 @@ export const Header = ({username, logout, toggleTheme, totalPoints}: HeaderProps
             <div className="headerItem">Coins: {totalPoints}</div>
 
             {NAV_ITEMS.map(item => (
-                <NavItem key={item.label} item={item.label} />
+                <NavItem key={item.label} item={item.label} active={location.pathname == item.location ? true : false} />
             ))}
            
 

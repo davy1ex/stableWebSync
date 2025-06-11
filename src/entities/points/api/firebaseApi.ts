@@ -1,6 +1,6 @@
 import { doc, getDocs, updateDoc } from "firebase/firestore";
 import { collection } from "firebase/firestore";
-import { PointsModel } from "@/entities/Points/store";
+import { PointsModel } from "@/entities/points/store";
 import { db } from "@/shared/lib/firebase";
 
 const pointsCollectionRef = collection(db, "points");

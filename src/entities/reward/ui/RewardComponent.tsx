@@ -3,7 +3,7 @@ import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { RewardModel } from "../model/RewardModel"
 import { useRewardStore } from "../model/store"
-import { usePointsStore } from '@/entities/Points'
+import { usePointsStore } from '@/entities/points'
 import './RewardComponent.css'
 import { useToastStore } from '@/features/showToast'
 

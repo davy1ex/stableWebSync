@@ -3,7 +3,7 @@ import { RewardModel } from "./RewardModel"
 import { createJSONStorage, persist } from "zustand/middleware"
 import { addReward, deleteReward, updateReward, updateRewards } from "../api/syncApi"
 import { useSettingsStore } from "@/entities/settings";
-import { usePointsStore } from "@/entities/Points";
+import { usePointsStore } from "@/entities/points";
 
 type RewardStore = {
     rewards: RewardModel[],

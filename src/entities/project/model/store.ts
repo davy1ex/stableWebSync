@@ -2,7 +2,6 @@ import { create } from "zustand";
 import { TaskModel } from "@/entities/task";
 import { ProjectModel } from "./model";
 import { createJSONStorage, persist } from "zustand/middleware";
-import { usePointsStore } from "@/entities/Points";
 
 type ProjectStore = {
     projects: ProjectModel[]

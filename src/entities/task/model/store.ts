@@ -3,7 +3,7 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import { TaskModel } from "./TaskModel";
 import { useSyncStore } from "@/features/sync";
 
-import { usePointsStore } from "@/entities/Points";
+import { usePointsStore } from "@/entities/points";
 import {
   addTaskToFirebase,
   deleteTaskFromFirebase,

@@ -9,7 +9,7 @@ import { fetchTasks } from "@/entities/task/api/syncApi";
 import { useRewardStore } from "@/entities/reward";
 import { fetchRewards } from "@/entities/reward/api/syncApi";
 import { useSettingsStore } from "@/entities/settings";
-import { usePointsStore } from "@/entities/Points";
+import { usePointsStore } from "@/entities/points";
 import { download } from "@/shared/lib/download";
 import { ToastContainer } from "@/shared/ui/Toast/ToastContainer";
 import { ModalWindow } from "@/shared/ui/ModalWindow";

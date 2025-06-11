@@ -1,5 +1,3 @@
-import { TaskModel } from "@/entities/task/model/TaskModel"
-
 export type ProjectModel = {
     projectId: number
     projectName: string
